@@ -1,0 +1,59 @@
+{
+    "name": "wwwision/types-openapi",
+    "description": "Generator for OpenAPI schema files",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "bwaidelich",
+            "email": "b.waidelich@wwwision.de"
+        }
+    ],
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/bwaidelich"
+        },
+        {
+            "type": "paypal",
+            "url": "https://www.paypal.me/bwaidelich"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "wwwision/types": "@dev",
+        "webmozart/assert": "^1.11",
+        "symfony/yaml": "^5 || ^6 || ^7",
+        "wwwision/types-jsonschema": "@dev",
+        "psr/http-server-handler": "^1",
+        "guzzlehttp/psr7": "^2.6",
+        "psr/http-server-middleware": "^1"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest",
+        "phpstan/phpstan": "^1.10",
+        "squizlabs/php_codesniffer": "^4.0.x-dev",
+        "phpunit/phpunit": "^10.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wwwision\\TypesOpenAPI\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Wwwision\\TypesOpenAPI\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test:phpstan": "phpstan",
+        "test:cs": "phpcs --colors src",
+        "test:cs:fix": "phpcbf --colors src",
+        "test:phpunit": "phpunit tests/PHPUnit",
+        "test": [
+            "@test:phpstan",
+            "@test:cs",
+            "@test:phpunit"
+        ]
+    }
+}
