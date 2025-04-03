@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Wwwision\TypesOpenAPI\Types;
 
-use ArrayIterator;
 use IteratorAggregate;
 use JsonSerializable;
 use Traversable;
@@ -17,12 +16,11 @@ use Traversable;
 final class ResponsesObject implements IteratorAggregate, JsonSerializable
 {
     /**
-     * @param array<string, ResponseObject> $items
+     * @param array<string|int, ResponseObject> $items
      */
     private function __construct(
         private readonly array $items,
-    ) {
-    }
+    ) {}
 
     public static function create(): self
     {
@@ -32,7 +30,8 @@ final class ResponsesObject implements IteratorAggregate, JsonSerializable
     public function with(HttpStatusCode $statusCode, ResponseObject $object): self
     {
         $merged = $this->items;
-        $merged[(string)$statusCode->value] = $object;
+        $merged[(string) $statusCode->value] = $object;
+        ksort($merged);
         return new self($merged);
     }
 
@@ -43,9 +42,14 @@ final class ResponsesObject implements IteratorAggregate, JsonSerializable
         return new self($merged);
     }
 
+    public function hasResponseForStatusCode(int $statusCode): bool
+    {
+        return array_key_exists((string) $statusCode, $this->items);
+    }
+
     public function getIterator(): Traversable
     {
-        return new ArrayIterator($this->items);
+        yield from $this->items;
     }
 
     /**

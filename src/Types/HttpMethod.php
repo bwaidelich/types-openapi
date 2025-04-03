@@ -6,16 +6,16 @@ namespace Wwwision\TypesOpenAPI\Types;
 
 use JsonSerializable;
 
-enum HttpMethod implements JsonSerializable
+enum HttpMethod: string implements JsonSerializable
 {
-    case GET;
-    case PUT;
-    case POST;
-    case DELETE;
-    case OPTIONS;
-    case HEAD;
-    case PATCH;
-    case TRACE;
+    case GET = 'GET';
+    case PUT = 'PUT';
+    case POST = 'POST';
+    case DELETE = 'DELETE';
+    case OPTIONS = 'OPTIONS';
+    case HEAD = 'HEAD';
+    case PATCH = 'PATCH';
+    case TRACE = 'TRACE';
 
     public function jsonSerialize(): string
     {

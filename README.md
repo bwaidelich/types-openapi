@@ -1,6 +1,8 @@
-# types-openapi
+# The easiest way to generate type-safe APIs with PHP...
 
-Integration for the [wwwision/types](https://github.com/bwaidelich/types) package that allows to generate OpenAPI schemas from PHP code
+...possibly... ;)
+
+Integration for the [wwwision/types](https://github.com/bwaidelich/types) package that allows for generation of [OpenAPI](https://www.openapis.org/) schemas and APIs from PHP code
 
 ## Usage
 
@@ -10,312 +12,221 @@ This package can be installed via [composer](https://getcomposer.org):
 composer require wwwision/types-openapi
 ```
 
-To generate a OpenAPI schema, create a class with at least one public method with a `Query` attribute:
+### Simple Example
+
+This is all that is required to generate an OpenAPI schema for a simple HTTP endpoint:
 
 ```php
 final class SomeApi {
 
-    #[Query]
-    public function ping(string $input): string
-    {
-        return strtoupper($input);
+    #[Operation(path: '/', method: 'GET')]
+    public function someEndpoint(): string {
+        return '{"success":true}';
     }
 }
+
+$generator = new OpenAPIGenerator();
+$openApiObject = $generator->generate(SomeApi::class, OpenAPIGeneratorOptions::create());
+
+assert($openApiObject instanceof OpenAPIObject);
+$expectedSchema = <<<JSON
+{"openapi":"3.0.3","info":{"title":"","version":"0.0.0"},"paths":{"\/":{"get":{"operationId":"someEndpoint","responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"type":"string"}}}}}}}}}
+JSON;
+assert(json_encode($openApiObject) === $expectedSchema);
 ```
 
-Now, this API can be used to create a OpenAPI schema:
+### Serve HTTP Requests
+
+This package comes with a `RequestHandler` that allows for serving HTTP requests using the generated OpenAPI schema.
+The `RequestHandler` is [PSR-7](https://www.php-fig.org/psr/psr-7/) compatible such that it can easily be integrated with a corresponding `psr/http-factory`/`psr/http-message` provider, e.g. `guzzlehttp/psr7`:
 
 ```php
-// ...
-$generator = new OpenAPIGenerator();
-$schema = $generator->generate(SomeApi::class)->render();
+// ... 
 
-assert($schema === 'type Query {
-  ping(input: String!): String!
+$api = new SomeApi();
+$httpFactory = new HttpFactory();
+$requestHandler = new RequestHandler($api, $httpFactory, $httpFactory);
+
+$request = ServerRequest::fromGlobals();
+try {
+    $response = $requestHandler($request);
+} catch (RequestException $e) {
+    $response = $httpFactory->createResponse($e::getStatusCode(), $e::getReasonPhrase());
+    $response->getBody()->write($e->getMessage());
 }
-');
+http_response_code($response->getStatusCode());
+foreach ($response->getHeaders() as $k => $values) {
+    foreach ($values as $v) {
+        header(sprintf('%s: %s', $k, $v), false);
+    }
+}
+echo $response->getBody();
 ```
 
-### Advanced types
-
-If you API class refers to more complex types (using attributes from the [wwwision/types](https://github.com/bwaidelich/types) package) in method parameters or return types, they will be added to the schema too.
 
 <details>
-<summary><h4>Example: Advanced types</h4></summary>
-
-
-1. Given you have the following classes defined:
+<summary><b>More complex example</b></summary>
 
 ```php
-#[StringBased]
-final class GivenName {
-    private function __construct(public readonly string $value) {}
-}
-
-#[StringBased]
-final class FamilyName {
-    private function __construct(public readonly string $value) {}
-}
-
-final class FullName {
-    public function __construct(
-        public readonly GivenName $givenName,
-        public readonly FamilyName $familyName,
-    ) {}
-}
-
-#[Description('honorific title of a person')]
-enum HonorificTitle
-{
-    #[Description('for men, regardless of marital status, who do not have another professional or academic title')]
-    case MR;
-    #[Description('for married women who do not have another professional or academic title')]
-    case MRS;
-    #[Description('for girls, unmarried women and married women who continue to use their maiden name')]
-    case MISS;
-    #[Description('for women, regardless of marital status or when marital status is unknown')]
-    case MS;
-    #[Description('for any other title that does not match the above')]
-    case OTHER;
-}
-
-#[Description('A contact in the system')]
-final class Contact {
-    public function __construct(
-        public readonly HonorificTitle $title,
-        public readonly FullName $name,
-        #[Description('Whether the contact is registered or not')]
-        public bool $isRegistered = false,
-    ) {}
-}
-
-#[ListBased(itemClassName: Contact::class)]
-final class Contacts {
-    private function __construct(private readonly array $contacts) {}
-}
-```
-
-2. ...and this API class:
-
-```php
-// ...
-final class SomeApi {
-
-    #[Query]
-    public function findContactsByFamilyName(FamilyName $familyName): Contacts
-    {
-        // ...
-    }
-
-    #[Mutation]
-    public function addContact(Contact $newContact): bool
-    {
-        // ...
-    }
-
-}
-```
-
-3. The OpenAPI schema is more verbose now:
-
-```php
-// ...
-$generator = new OpenAPIGenerator();
-$schema = $generator->generate(SomeApi::class)->render();
-
-$expectedSchema = <<<GRAPHQL
-type Query {
-  findContactsByFamilyName(familyName: FamilyName!): [Contact!]!
-}
-
-type Mutation {
-  addContact(newContact: ContactInput!): Boolean!
-}
-
-scalar FamilyName
-
-"""
-honorific title of a person
-"""
-enum HonorificTitle {
-  """
-  for men, regardless of marital status, who do not have another professional or academic title
-  """
-  MR
-  """
-  for married women who do not have another professional or academic title
-  """
-  MRS
-  """
-  for girls, unmarried women and married women who continue to use their maiden name
-  """
-  MISS
-  """
-  for women, regardless of marital status or when marital status is unknown
-  """
-  MS
-  """
-  for any other title that does not match the above
-  """
-  OTHER
-}
-
-scalar GivenName
-
-type FullName {
-  givenName: GivenName!
-  familyName: FamilyName!
-}
-
-type Contact {
-  """ honorific title of a person """
-  title: HonorificTitle!
-  name: FullName!
-  """ Whether the contact is registered or not """
-  isRegistered: Boolean
-}
-
-input FullNameInput {
-  givenName: GivenName!
-  familyName: FamilyName!
-}
-
-input ContactInput {
-  """ honorific title of a person """
-  title: HonorificTitle!
-  name: FullNameInput!
-  """ Whether the contact is registered or not """
-  isRegistered: Boolean
-}
-
-GRAPHQL;
-
-assert($schema === $expectedSchema);
-```
-
-</details>
-
-### Type constraints
-
-The OpenAPI schema does not have a notion of advanced type constraints.
-But the OpenAPIGenerator can turn them into [openapi-constraint](https://www.npmjs.com/package/openapi-constraint-directive) directives
-that can be interpreted by consumers.
-It also adds the constraint rules to descriptions of the corresponding fields.
-
-<details>
-<summary><h4>Example: Type constraints</h4></summary>
-
-```php
+#[Description('Unique handle for a user in the API')]
 #[StringBased(minLength: 1, maxLength: 200)]
-final class Name {
-    private function __construct(public readonly string $value) {}
+final class Username {
+    private function __construct(
+        public readonly string $value,
+    ) {
+    }
+
+    public static function fromString(string $value): self {
+        return instantiate(self::class, $value);
+    }
 }
 
-#[IntegerBased(minimum: 1, maximum: 130)]
-final class Age {
-    private function __construct(public readonly int $value) {}
+#[Description('Email address of a user')]
+#[StringBased(format: StringTypeFormat::email)]
+final class EmailAddress {
+    private function __construct(
+        public readonly string $value,
+    ) {
+    }
+
+    public static function fromString(string $value): self {
+        return instantiate(self::class, $value);
+    }
 }
 
-#[ListBased(itemClassName: Name::class, minCount: 1, maxCount: 5)]
-final class Names {
-    private function __construct(private readonly array $names) {}
+final class User {
+
+    public function __construct(
+        public readonly Username $username,
+        public readonly EmailAddress $emailAddress,
+    ) {
+    }
 }
 
-final class SomeApi {
-    #[Query]
-    public function oldestPerson(Names $someNames): ?Age
+/**
+ * @implements IteratorAggregate<User>
+ */
+#[Description('A set of users')]
+#[ListBased(itemClassName: User::class)]
+final class Users implements IteratorAggregate
+{
+    /**
+     * @param array<User> $users
+     */
+    private function __construct(private readonly array $users) {
+    }
+
+    public static function fromArray(array $users): self {
+        return instantiate(self::class, $users);
+    }
+
+    public function getIterator(): Traversable {
+        yield from $this->users;
+    }
+}
+
+final class AddUser {
+    public function __construct(
+        public readonly Username $username,
+        public readonly EmailAddress $emailAddress,
+    ) {
+    }
+}
+
+interface UserRepository {
+    public function findAll(): Users;
+    public function findByUsername(Username $username): User|null;
+    public function add(User $user): void;
+}
+
+#[OpenApi(apiTitle: 'Some API', apiVersion: '1.2.3', openApiVersion: '3.0.3', securitySchemes: ['basicAuth' => ['type' => 'http', 'scheme' => 'basic', 'description' => 'Basic authentication']])]
+final class SomeApi
+{
+
+    public function __construct(
+        private readonly UserRepository $userRepository,
+    ) {
+    }
+
+    #[Operation(path: '/users', method: 'GET')]
+    public function users(): Users
     {
-        // ...
+        return $this->userRepository->findAll();
+    }
+
+    #[Operation(path: '/users/{username}', method: 'GET')]
+    public function userByUsername(Username $username): User|NotFoundResponse
+    {
+        return $this->userRepository->findByUsername($username) ?: new NotFoundResponse();
+    }
+
+    #[Operation(path: '/users', method: 'POST')]
+    public function addUser(AddUser $command): CreatedResponse
+    {
+        $this->userRepository->add(new User($command->username, $command->emailAddress));
+        return new CreatedResponse();
     }
 }
 
 $generator = new OpenAPIGenerator();
-$schema = $generator->generate(SomeApi::class)->render();
-
-$expectedSchema = <<<GRAPHQL
-"""
-Custom constraint directive (see https://www.npmjs.com/package/openapi-constraint-directive)
-"""
-directive @constraint(minLength: Int maxLength: Int pattern: String format: String min: Int max: Int minItems: Int maxItems: Int) on FIELD_DEFINITION | SCALAR | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
-
-
-type Query {
-  oldestPerson(someNames: [Name!]! @constraint(minItems: 1 maxItems: 5)): Age
-}
-
-"""
-
-*Constraints:*
-* Minimum length: `1`
-* Maximum length: `200`
-"""
-scalar Name @constraint(minLength: 1 maxLength: 200)
-
-"""
-
-*Constraints:*
-* Minimum value: `1`
-* Maximum value: `130`
-"""
-scalar Age @constraint(min: 1 max: 130)
-
-GRAPHQL;
-
-assert($schema === $expectedSchema);
-
+$openApiObject = $generator->generate(SomeApi::class, OpenAPIGeneratorOptions::create());
+assert($openApiObject instanceof OpenAPIObject);
+$expectedSchema = <<<'JSON'
+{"openapi":"3.0.3","info":{"title":"Some API","version":"1.2.3"},"paths":{"\/users":{"get":{"operationId":"users","responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/Users"}}}}}},"post":{"operationId":"addUser","requestBody":{"content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/AddUser"}}},"required":true},"responses":{"201":{"description":"Created"},"400":{"description":"Bad Request"}}}},"\/users\/{username}":{"get":{"operationId":"userByUsername","parameters":[{"name":"username","in":"path","required":true,"schema":{"$ref":"#\/components\/schemas\/Username"}}],"responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/User"}}}},"400":{"description":"Bad Request"},"404":{"description":"Not Found"}}}}},"components":{"schemas":{"User":{"type":"object","properties":{"username":{"type":"string","description":"Unique handle for a user in the API","minLength":1,"maxLength":200},"emailAddress":{"type":"string","description":"Email address of a user","format":"email"}},"additionalProperties":false,"required":["username","emailAddress"]},"Users":{"type":"array","description":"A set of users","items":{"$ref":"#\/components\/schemas\/User"}},"Username":{"type":"string","description":"Unique handle for a user in the API","minLength":1,"maxLength":200},"AddUser":{"type":"object","properties":{"username":{"type":"string","description":"Unique handle for a user in the API","minLength":1,"maxLength":200},"emailAddress":{"type":"string","description":"Email address of a user","format":"email"}},"additionalProperties":false,"required":["username","emailAddress"]}},"securitySchemes":{"basicAuth":{"type":"http","description":"Basic authentication","scheme":"basic"}}}}
+JSON;
+assert(json_encode($openApiObject) === $expectedSchema);
 ```
 
-</details>
-
-### Custom resolvers
-
-With version [1.2.0](https://github.com/bwaidelich/types-openapi/releases/tag/1.2.0) custom functions can be registered that extend the behavior of types dynamically.
-
-> **Note**
-> The signature of the custom resolver closure has to contain the extended type as first argument and specify the return type, for example: `new CustomResolver('SomeObject', 'someCustomField', fn (SomeObject $thisIsRequired, string $thisIsOptional): bool => true)`
-
-<details>
-<summary><h4>Example: Custom resolvers</h4></summary>
-
 ```php
-final class User {
-    public function __construct(
-        public readonly string $givenName,
-        public readonly string $familyName,
-    ) {}
-}
+// ...
+final class FakeUserRepository implements UserRepository {
 
-#[ListBased(itemClassName: User::class)]
-final class Users {
-}
+    /**
+     * @var array<string, User>
+     */
+    private array $usersByUsername;
 
-final class SomeApi {
-    #[Query]
-    public function users(): ?Users
+    public function __construct()
     {
-        // ...
+        $this->usersByUsername = [
+            'john.doe' => new User(Username::fromString('john.doe'), EmailAddress::fromString('john.doe@example.com')),
+            'jane.doe' => new User(Username::fromString('jane.doe'), EmailAddress::fromString('jane.doe@example.com')),
+        ];
+    }
+
+    public function findAll(): Users {
+        return Users::fromArray(array_values($this->usersByUsername));
+    }
+
+    public function findByUsername(Username $username): User|null
+    {
+        return $this->usersByUsername[$username->value] ?? null;
+    }
+
+    public function add(User $user): void
+    {
+        $this->usersByUsername[$user->username->value] = $user;
     }
 }
 
-$generator = new OpenAPIGenerator();
-$customResolvers = CustomResolvers::create(new CustomResolver('User', 'fullName', fn (User $user): string => $user->givenName . ' ' . $user->familyName));
-$schema = $generator->generate(SomeApi::class, $customResolvers)->render();
+$api = new SomeApi(new FakeUserRepository());
+$httpFactory = new HttpFactory();
+$requestHandler = new RequestHandler($api, $httpFactory, $httpFactory);
 
-$expectedSchema = <<<GRAPHQL
-type Query {
-  users: [User!]
+$request = ServerRequest::fromGlobals();
+try {
+    $response = $requestHandler($request);
+} catch (RequestException $e) {
+    $response = $httpFactory->createResponse($e::getStatusCode(), $e::getReasonPhrase());
+    $response->getBody()->write($e->getMessage());
 }
-
-type User {
-  givenName: String!
-  familyName: String!
-  fullName: String!
+http_response_code($response->getStatusCode());
+foreach ($response->getHeaders() as $k => $values) {
+    foreach ($values as $v) {
+        header(sprintf('%s: %s', $k, $v), false);
+    }
 }
-
-GRAPHQL;
-
-assert($schema === $expectedSchema);
-
+echo $response->getBody();
 ```
 
 </details>

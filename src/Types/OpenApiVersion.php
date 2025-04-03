@@ -22,6 +22,11 @@ final class OpenApiVersion implements JsonSerializable
         return new self($value);
     }
 
+    public static function current(): self
+    {
+        return new self('3.0.3');
+    }
+
     public function jsonSerialize(): string
     {
         return $this->value;

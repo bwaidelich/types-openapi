@@ -12,17 +12,16 @@ use JsonSerializable;
 final class ContactObject implements JsonSerializable
 {
     public function __construct(
-        public readonly ?string $name = null,
-        public readonly ?string $url = null,
-        public readonly ?string $email = null,
-    ) {
-    }
+        public readonly null|string $name = null,
+        public readonly null|string $url = null,
+        public readonly null|string $email = null,
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        return array_filter(get_object_vars($this), static fn($i) => $i !== null);
     }
 }

@@ -12,19 +12,24 @@ use Wwwision\TypesJSONSchema\Types as JSON;
  */
 final class MediaTypeObject implements JsonSerializable
 {
+    /**
+     * @param array<string, mixed> $meta key/value for custom metadata. This is not part of the OpenAPI specification and won't appear in the JSON serialized format
+     */
     public function __construct(
-        public readonly ?JSON\Schema $schema = null,
+        public readonly null|JSON\Schema $schema = null,
         // TODO add example
-        public readonly ?ExampleOrReferenceObjectMap $examples = null,
-        public readonly ?EncodingObjectMap $encoding = null,
-    ) {
-    }
+        public readonly null|ExampleOrReferenceObjectMap $examples = null,
+        public readonly null|EncodingObjectMap $encoding = null,
+        public readonly array $meta = [],
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        $vars = get_object_vars($this);
+        unset($vars['meta']);
+        return array_filter($vars, static fn($i) => $i !== null);
     }
 }

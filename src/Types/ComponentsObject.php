@@ -12,24 +12,23 @@ use JsonSerializable;
 final class ComponentsObject implements JsonSerializable
 {
     public function __construct(
-        private readonly ?SchemaObjectMap $schemas = null,
-        private readonly ?ResponseOrReferenceObjectMap $responses = null,
-        private readonly ?ParameterOrReferenceObjects $parameters = null,
-        private readonly ?ExampleOrReferenceObjectMap $examples = null,
+        private readonly null|SchemaObjectMap $schemas = null,
+        private readonly null|ResponseOrReferenceObjectMap $responses = null,
+        private readonly null|ParameterOrReferenceObjects $parameters = null,
+        private readonly null|ExampleOrReferenceObjectMap $examples = null,
         // TODO add requestBodies
-        private readonly ?HeaderOrReferenceObjectMap $headers = null,
-        // TODO add securitySchemes
-        private readonly ?LinkOrReferenceObjectMap $links = null,
+        private readonly null|HeaderOrReferenceObjectMap $headers = null,
+        private readonly null|SecuritySchemeOrReferenceObjectMap $securitySchemes = null,
+        private readonly null|LinkOrReferenceObjectMap $links = null,
         // TODO add callbacks
         // TODO add pathItems
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        return array_filter(get_object_vars($this), static fn($i) => $i !== null);
     }
 }
