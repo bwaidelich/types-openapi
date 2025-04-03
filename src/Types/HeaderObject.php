@@ -12,17 +12,16 @@ use JsonSerializable;
 final class HeaderObject implements JsonSerializable
 {
     public function __construct(
-        public readonly ?string $description = null,
-        public readonly ?bool $required = null,
-        public readonly ?bool $deprecated = null,
-    ) {
-    }
+        public readonly null|string $description = null,
+        public readonly null|bool $required = null,
+        public readonly null|bool $deprecated = null,
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        return array_filter(get_object_vars($this), static fn($i) => $i !== null);
     }
 }

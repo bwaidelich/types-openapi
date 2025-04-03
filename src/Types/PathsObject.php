@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Wwwision\TypesOpenAPI\Types;
 
-use ArrayIterator;
 use IteratorAggregate;
 use JsonSerializable;
 use Traversable;
+use Wwwision\TypesOpenAPI\Exception\AmbiguousPathException;
 
 /**
  * @see https://swagger.io/specification/#paths-object
@@ -17,11 +17,16 @@ use Traversable;
 final class PathsObject implements IteratorAggregate, JsonSerializable
 {
     /**
-     * @param array<string, PathObject> $items
+     * @var array<int, array{path: RelativePath, object: PathObject}>
      */
-    private function __construct(
-        private readonly array $items,
-    ) {
+    private readonly array $items;
+
+    /**
+     * @param array<int, array{path: RelativePath, object: PathObject}> $items
+     */
+    private function __construct(array $items)
+    {
+        $this->items = $items;
     }
 
     public static function create(): self
@@ -31,9 +36,34 @@ final class PathsObject implements IteratorAggregate, JsonSerializable
 
     public function with(RelativePath $path, PathObject $object): self
     {
-        $merged = $this->items;
-        $merged[$path->value] = $object;
-        return new self($merged);
+        $items = $this->items;
+        $newItem = ['path' => $path, 'object' => $object];
+        foreach ($this->items as $index => $item) {
+            // "Templated paths with the same hierarchy but different templated names MUST NOT exist as they are identical." (@see https://swagger.io/specification/#paths-object)
+            if ($path->equalsStructurally($item['path'])) {
+                throw new AmbiguousPathException(sprintf('Path "%s" is ambiguous', $path->value), 1711991566);
+            }
+            // "When matching URLs, concrete (non-templated) paths would be matched before their templated counterparts" (@see https://swagger.io/specification/#paths-object)
+            if (!$path->isTemplated() && $item['path']->isTemplated() && $item['path']->matches($path->value)) {
+                array_splice($items, $index, 0, [$newItem]);
+                return new self($items);
+            }
+        }
+        $items[] = $newItem;
+        return new self($items);
+    }
+
+    /**
+     * @param array<mixed>|null $matches
+     */
+    public function match(string $path, array|null &$matches = null): null|PathObject
+    {
+        foreach ($this->items as $item) {
+            if ($item['path']->matches($path, $matches)) {
+                return $item['object'];
+            }
+        }
+        return null;
     }
 
     public function isEmpty(): bool
@@ -43,7 +73,9 @@ final class PathsObject implements IteratorAggregate, JsonSerializable
 
     public function getIterator(): Traversable
     {
-        return new ArrayIterator($this->items);
+        foreach ($this->items as $item) {
+            yield $item['path']->value => $item['object'];
+        }
     }
 
     /**
@@ -51,6 +83,6 @@ final class PathsObject implements IteratorAggregate, JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return $this->items;
+        return iterator_to_array($this);
     }
 }

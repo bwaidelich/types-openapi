@@ -17,22 +17,21 @@ final class OpenAPIObject implements JsonSerializable
     public function __construct(
         public readonly OpenApiVersion $openapi,
         public readonly InfoObject $info,
-        public readonly ?string $jsonSchemaDialect = null,
-        public readonly ?ServerObjects $servers = null,
-        public readonly ?PathsObject $paths = null,
+        public readonly null|string $jsonSchemaDialect = null,
+        public readonly null|ServerObjects $servers = null,
+        public readonly null|PathsObject $paths = null,
         // TODO add webhooks
-        public readonly ?ComponentsObject $components = null,
-        // TODO add security
-        public readonly ?array $tags = null,
-        public readonly ?ExternalDocumentationObject $externalDocs = null,
-    ) {
-    }
+        public readonly null|ComponentsObject $components = null,
+        public readonly null|SecurityRequirementObject $security = null,
+        public readonly null|array $tags = null,
+        public readonly null|ExternalDocumentationObject $externalDocs = null,
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        return array_filter(get_object_vars($this), static fn($i) => $i !== null);
     }
 }

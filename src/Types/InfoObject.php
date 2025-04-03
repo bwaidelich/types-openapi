@@ -13,20 +13,19 @@ final class InfoObject implements JsonSerializable
 {
     public function __construct(
         public readonly string $title,
-        public readonly ?string $summary = null,
-        public readonly ?string $description = null,
-        public readonly ?string $termsOfService = null,
-        public readonly ?ContactObject $contact = null,
-        public readonly ?LicenseObject $license = null,
-        public readonly ?string $version = null,
-    ) {
-    }
+        public readonly ApiVersion $version,
+        public readonly null|string $summary = null,
+        public readonly null|string $description = null,
+        public readonly null|string $termsOfService = null,
+        public readonly null|ContactObject $contact = null,
+        public readonly null|LicenseObject $license = null,
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        return array_filter(get_object_vars($this), static fn($i) => $i !== null);
     }
 }

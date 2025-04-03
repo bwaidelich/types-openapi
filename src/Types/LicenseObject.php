@@ -14,8 +14,8 @@ final class LicenseObject implements JsonSerializable
 {
     public function __construct(
         public readonly string $name,
-        public readonly ?string $identifier = null,
-        public readonly ?string $url = null,
+        public readonly null|string $identifier = null,
+        public readonly null|string $url = null,
     ) {
         if ($this->identifier !== null && $this->url !== null) {
             throw new InvalidArgumentException('Fields "identifier" and "url" are mutually exclusive', 1704987583);
@@ -27,6 +27,6 @@ final class LicenseObject implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        return array_filter(get_object_vars($this), static fn($i) => $i !== null);
     }
 }

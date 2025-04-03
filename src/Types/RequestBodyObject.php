@@ -11,18 +11,23 @@ use JsonSerializable;
  */
 final class RequestBodyObject implements JsonSerializable
 {
+    /**
+     * @param array<string, mixed> $meta key/value for custom metadata. This is not part of the OpenAPI specification and won't appear in the JSON serialized format
+     */
     public function __construct(
         public readonly MediaTypeObjectMap $content,
-        public readonly ?string $description = null,
-        public readonly ?bool $required = null,
-    ) {
-    }
+        public readonly null|string $description = null,
+        public readonly null|bool $required = null,
+        public readonly array $meta = [],
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        $vars = get_object_vars($this);
+        unset($vars['meta']);
+        return array_filter($vars, static fn($i) => $i !== null);
     }
 }

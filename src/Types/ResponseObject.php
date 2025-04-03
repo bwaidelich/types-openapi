@@ -13,17 +13,16 @@ final class ResponseObject implements JsonSerializable
 {
     public function __construct(
         public readonly string $description,
-        public readonly ?HeaderOrReferenceObjectMap $headers = null,
-        public readonly ?MediaTypeObjectMap $content = null,
-        public readonly ?LinkOrReferenceObjectMap $links = null,
-    ) {
-    }
+        public readonly null|HeaderOrReferenceObjectMap $headers = null,
+        public readonly null|MediaTypeObjectMap $content = null,
+        public readonly null|LinkOrReferenceObjectMap $links = null,
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        return array_filter(get_object_vars($this), static fn($i) => $i !== null);
     }
 }

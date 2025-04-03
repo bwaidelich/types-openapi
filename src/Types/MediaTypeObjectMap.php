@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Wwwision\TypesOpenAPI\Types;
 
-use ArrayIterator;
 use IteratorAggregate;
 use JsonSerializable;
 use Traversable;
@@ -21,8 +20,7 @@ final class MediaTypeObjectMap implements IteratorAggregate, JsonSerializable
      */
     private function __construct(
         private readonly array $items,
-    ) {
-    }
+    ) {}
 
     public static function create(): self
     {
@@ -38,7 +36,7 @@ final class MediaTypeObjectMap implements IteratorAggregate, JsonSerializable
 
     public function getIterator(): Traversable
     {
-        return new ArrayIterator($this->items);
+        yield from $this->items;
     }
 
     /**

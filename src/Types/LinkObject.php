@@ -15,20 +15,19 @@ final class LinkObject implements JsonSerializable
      * @param array<string, mixed>|null $parameters
      */
     public function __construct(
-        public readonly ?string $operationRef = null,
-        public readonly ?string $operationId = null,
-        public readonly ?array $parameters = null,
+        public readonly null|string $operationRef = null,
+        public readonly null|string $operationId = null,
+        public readonly null|array $parameters = null,
         // TODO add requestBody
-        public readonly ?string $description = null,
-        public readonly ?ServerObject $server = null,
-    ) {
-    }
+        public readonly null|string $description = null,
+        public readonly null|ServerObject $server = null,
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), static fn ($i) => $i !== null);
+        return array_filter(get_object_vars($this), static fn($i) => $i !== null);
     }
 }

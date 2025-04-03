@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Wwwision\TypesOpenAPI\Types;
 
-use ArrayIterator;
 use IteratorAggregate;
 use Traversable;
 use Webmozart\Assert\Assert;
@@ -27,6 +26,6 @@ final class LinkOrReferenceObjectMap implements IteratorAggregate
 
     public function getIterator(): Traversable
     {
-        return new ArrayIterator($this->items);
+        yield from $this->items;
     }
 }

@@ -9,6 +9,7 @@ use Generator;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+
 use function file_get_contents;
 use function get_debug_type;
 use function preg_match;
@@ -18,12 +19,12 @@ use function sprintf;
 #[CoversNothing]
 final class ReadmeCodeBlockTest extends TestCase
 {
-
-    private static ?string $previousNamespace = null;
+    private static null|string $previousNamespace = null;
 
     public static function code_blocks_dataProvider(): Generator
     {
         $readmeFilePath = realpath(__DIR__ . '/../../README.md');
+        self::assertIsString($readmeFilePath);
         $readmeContents = file_get_contents($readmeFilePath);
         if (!is_string($readmeContents)) {
             self::fail(sprintf('Failed to read README file from "%s"', $readmeFilePath));
@@ -38,7 +39,7 @@ final class ReadmeCodeBlockTest extends TestCase
     }
 
     #[DataProvider('code_blocks_dataProvider')]
-    public function test_code_blocks(string $code, int $lineNumber, string $expectedExceptionMessage = null): void
+    public function test_code_blocks(string $code, int $lineNumber, string|null $expectedExceptionMessage = null): void
     {
         if (self::$previousNamespace !== null && str_starts_with(trim($code), '// ...')) {
             $namespace = self::$previousNamespace;
@@ -48,17 +49,31 @@ final class ReadmeCodeBlockTest extends TestCase
         self::$previousNamespace = $namespace;
         $namespacedCode = <<<CODE
             namespace $namespace {
-                use Wwwision\TypesOpenAPI\Attributes\Query;
-                use Wwwision\TypesOpenAPI\Attributes\Mutation;
-                use Wwwision\TypesOpenAPI\OpenAPIGenerator;
+                use GuzzleHttp\Psr7\HttpFactory;
+                use GuzzleHttp\Psr7\ServerRequest;
+                use Traversable;
+                use IteratorAggregate;
                 use Wwwision\Types\Attributes\Description;
                 use Wwwision\Types\Attributes\IntegerBased;
                 use Wwwision\Types\Attributes\ListBased;
                 use Wwwision\Types\Attributes\StringBased;
                 use Wwwision\Types\Parser;
                 use Wwwision\Types\Schema\StringTypeFormat;
-                use Wwwision\TypesOpenAPI\Types\CustomResolver;
-                use Wwwision\TypesOpenAPI\Types\CustomResolvers;
+                use Wwwision\TypesOpenAPI\Attributes\Mutation;
+                use Wwwision\TypesOpenAPI\Attributes\OpenApi;
+                use Wwwision\TypesOpenAPI\Attributes\Operation;
+                use Wwwision\TypesOpenAPI\Attributes\Query;
+                use Wwwision\TypesOpenAPI\Http\Exception\RequestException;
+                use Wwwision\TypesOpenAPI\Http\RequestHandler;
+                use Wwwision\TypesOpenAPI\OpenAPIGenerator;
+                use Wwwision\TypesOpenAPI\Response\CreatedResponse;
+                use Wwwision\TypesOpenAPI\Response\NotFoundResponse;
+                use Wwwision\TypesOpenAPI\Response\OkResponse;
+                use Wwwision\TypesOpenAPI\Response\ProblemBadRequestResponse;
+                use Wwwision\TypesOpenAPI\Response\ProblemInternalServerErrorResponse;
+                use Wwwision\TypesOpenAPI\Response\UnauthorizedResponse;
+                use Wwwision\TypesOpenAPI\Types\OpenAPIGeneratorOptions;
+                use Wwwision\TypesOpenAPI\Types\OpenAPIObject;
                 use function Wwwision\Types\instantiate;
                 $code
             }
