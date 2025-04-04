@@ -4,25 +4,17 @@ declare(strict_types=1);
 
 namespace Wwwision\TypesOpenAPI\Tests\PHPUnit;
 
-use ArrayIterator;
+require_once __DIR__ . '/Fixture/Fixture.php';
+
 use InvalidArgumentException;
-use IteratorAggregate;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Traversable;
-use Wwwision\Types\Attributes\Description;
-use Wwwision\Types\Attributes\ListBased;
-use Wwwision\TypesOpenAPI\Attributes\OpenApi;
-use Wwwision\TypesOpenAPI\Attributes\Operation;
 use Wwwision\TypesOpenAPI\Exception\AmbiguousPathException;
 use Wwwision\TypesOpenAPI\OpenAPIGenerator;
-use Wwwision\TypesOpenAPI\Types\HttpMethod;
 use Wwwision\TypesOpenAPI\Types\OpenAPIGeneratorOptions;
 use Wwwision\TypesOpenAPI\Types\ServerObject;
 use Wwwision\TypesOpenAPI\Types\ServerObjects;
-
-use function Wwwision\Types\instantiate;
 
 #[CoversClass(OpenAPIGenerator::class)]
 final class OpenAPIGeneratorTest extends TestCase
@@ -46,7 +38,7 @@ final class OpenAPIGeneratorTest extends TestCase
         foreach (['local' => 'http://localhost:8081', 'prod' => 'https://foo-bar.com/'] as $description => $url) {
             $servers[] = new ServerObject($url, $description);
         }
-        $schema = $this->generator->generate(PetStoreApi::class, OpenAPIGeneratorOptions::create(servers: new ServerObjects(...$servers), apiTitle: 'Overridden'));
+        $schema = $this->generator->generate(Fixture\PetStoreApi::class, OpenAPIGeneratorOptions::create(servers: new ServerObjects(...$servers), apiTitle: 'Overridden'));
 
         $expected = <<<'JSON'
             {
@@ -158,8 +150,8 @@ final class OpenAPIGeneratorTest extends TestCase
      */
     public static function valid_paths_provider(): iterable
     {
-        yield 'concrete and templated paths overlap' => ['className' => ApiWithConcreteAndTemplatedPathsOverlap::class, 'expectedPaths' => ['/pets/mine' => ['get'], '/pets/{pet}' => ['get']]];
-        yield 'same paths but different methods' => ['className' => ApiWithTheSamePathsButDifferentMethods::class, 'expectedPaths' => ['/pets/{pet}' => ['get', 'post']]];
+        yield 'concrete and templated paths overlap' => ['className' => Fixture\ApiWithConcreteAndTemplatedPathsOverlap::class, 'expectedPaths' => ['/pets/mine' => ['get'], '/pets/{pet}' => ['get']]];
+        yield 'same paths but different methods' => ['className' => Fixture\ApiWithTheSamePathsButDifferentMethods::class, 'expectedPaths' => ['/pets/{pet}' => ['get', 'post']]];
     }
 
     /**
@@ -182,9 +174,9 @@ final class OpenAPIGeneratorTest extends TestCase
      */
     public static function invalid_paths_provider(): iterable
     {
-        yield 'same paths and methods' => ['className' => ApiWithTheSamePathsAndMethods::class];
-        yield 'same path structure and methods' => ['className' => ApiWithTheSamePathStructureAndMethods::class];
-        yield 'same path structure but different methods' => ['className' => ApiWithTheSamePathStructureButDifferentMethods::class];
+        yield 'same paths and methods' => ['className' => Fixture\ApiWithTheSamePathsAndMethods::class];
+        yield 'same path structure and methods' => ['className' => Fixture\ApiWithTheSamePathStructureAndMethods::class];
+        yield 'same path structure but different methods' => ['className' => Fixture\ApiWithTheSamePathStructureButDifferentMethods::class];
     }
 
     #[DataProvider('invalid_paths_provider')]
@@ -194,149 +186,4 @@ final class OpenAPIGeneratorTest extends TestCase
         $this->generator->generate($className, OpenAPIGeneratorOptions::create());
     }
 
-}
-
-final class Pet
-{
-    private function __construct(
-        public readonly int $id,
-        public readonly string $name,
-        public readonly null|string $tag = null,
-    ) {}
-}
-
-/**
- * @implements IteratorAggregate<Pet>
- */
-#[ListBased(itemClassName: Pet::class, minCount: 1, maxCount: 10)]
-final class Pets implements IteratorAggregate
-{
-    /**
-     * @param array<Pet> $pets
-     */
-    private function __construct(private readonly array $pets) {}
-
-    public function getIterator(): Traversable
-    {
-        return new ArrayIterator($this->pets);
-    }
-}
-
-enum PetStatus
-{
-    case available;
-    case pending;
-    case sold;
-}
-
-#[OpenApi(apiTitle: 'Pet Store API', apiVersion: '1.0.0')]
-
-final class PetStoreApi
-{
-    private Pets $pets;
-
-    public function __construct()
-    {
-        $this->pets = instantiate(Pets::class, [
-            ['id' => 1, 'name' => 'First'],
-            ['id' => 2, 'name' => 'Second', 'tags' => ['some-tag']],
-            ['id' => 3, 'name' => 'Third', 'tags' => ['some-other-tag']],
-        ]);
-    }
-
-    #[Operation(path: '/pet/findByStatus', method: HttpMethod::GET)]
-    #[Description('Operation description')]
-    public function pets(): Pets
-    {
-        return $this->pets;
-    }
-
-    #[Operation(path: '/pet/{id}', method: HttpMethod::GET)]
-    public function petById(int $id): Pet
-    {
-        foreach ($this->pets as $pet) {
-            if ($pet->id === $id) {
-                return $pet;
-            }
-        }
-        throw new InvalidArgumentException(sprintf('Pet #%d not found', $id));
-    }
-
-
-}
-
-final class ApiWithConcreteAndTemplatedPathsOverlap
-{
-    #[Operation(path: '/pets/{pet}', method: HttpMethod::GET)]
-    public function pet(string $pet): string
-    {
-        return 'pet';
-    }
-
-    #[Operation(path: '/pets/mine', method: HttpMethod::GET)]
-    public function mine(): string
-    {
-        return 'mine';
-    }
-}
-
-final class ApiWithTheSamePathsAndMethods
-{
-    #[Operation(path: '/pets/{pet}', method: HttpMethod::POST)]
-    public function pet(string $pet): string
-    {
-        return 'pet';
-    }
-
-    #[Operation(path: '/pets/{pet}', method: HttpMethod::POST)]
-    public function foo(string $foo): string
-    {
-        return 'mine';
-    }
-}
-
-final class ApiWithTheSamePathsButDifferentMethods
-{
-    #[Operation(path: '/pets/{pet}', method: HttpMethod::GET)]
-    public function pet(string $pet): string
-    {
-        return 'pet';
-    }
-
-    #[Operation(path: '/pets/{pet}', method: HttpMethod::POST)]
-    public function foo(string $foo): string
-    {
-        return 'mine';
-    }
-}
-
-
-final class ApiWithTheSamePathStructureAndMethods
-{
-    #[Operation(path: '/pets/{pet}', method: HttpMethod::GET)]
-    public function pet(string $pet): string
-    {
-        return 'pet';
-    }
-
-    #[Operation(path: '/pets/{foo}', method: HttpMethod::GET)]
-    public function foo(string $foo): string
-    {
-        return 'mine';
-    }
-}
-
-final class ApiWithTheSamePathStructureButDifferentMethods
-{
-    #[Operation(path: '/pets/{pet}', method: HttpMethod::GET)]
-    public function pet(string $pet): string
-    {
-        return 'pet';
-    }
-
-    #[Operation(path: '/pets/{foo}', method: HttpMethod::POST)]
-    public function foo(string $foo): string
-    {
-        return 'mine';
-    }
 }
