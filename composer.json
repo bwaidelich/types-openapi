@@ -49,12 +49,14 @@
         ]
     },
     "scripts": {
-        "test:phpstan": "phpstan --debug",
+        "test:phpstan": "phpstan",
         "test:cs": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer check",
         "test:cs:fix": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix",
         "test:phpunit": "phpunit tests/PHPUnit",
         "test": [
-            "@test:phpstan"
+            "@test:phpstan",
+            "@test:cs",
+            "@test:phpunit"
         ]
     }
 }
