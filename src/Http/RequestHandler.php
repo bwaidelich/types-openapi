@@ -218,15 +218,22 @@ final class RequestHandler
             $parameterValue = match ($parameterObject->in) {
                 ParameterLocation::query => $request->getQueryParams()[$parameterObject->name] ?? null,
                 ParameterLocation::path => $extractedVariables[$parameterObject->name] ?? null,
-                ParameterLocation::cookie => throw new RuntimeException('ParameterLocation::cookie is not yet supported'), // TODO
-                ParameterLocation::header => throw new RuntimeException('ParameterLocation::header is not yet supported'), // TODO
+                ParameterLocation::cookie => $request->getCookieParams()[$parameterObject->name] ?? null,
+                ParameterLocation::header => $request->hasHeader($parameterObject->name) ? $request->getHeaderLine($parameterObject->name) : null,
             };
+            if ($parameterValue === null && $parameterObject->required !== true) {
+                continue;
+            }
             if (isset($parameterObject->meta['schema'])) {
                 $parameterSchema = $parameterObject->meta['schema'];
                 if (!$parameterSchema instanceof Schema) {
                     throw new RuntimeException(sprintf('Parameter schema is not a Schema object: %s', get_debug_type($parameterSchema)));
                 }
-                $parameterValue = $parameterSchema->instantiate($parameterValue);
+                try {
+                    $parameterValue = $parameterSchema->instantiate($parameterValue);
+                } catch (CoerceException $e) {
+                    throw CoerceException::fromIssues($e->issues->withPrependedPathSegment($parameterObject->in->name . '.' . $parameterObject->name), $parameterValue, $parameterSchema);
+                }
             }
             $parameters[$parameterObject->name] = $parameterValue;
         }

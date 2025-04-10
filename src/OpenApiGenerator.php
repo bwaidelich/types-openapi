@@ -26,6 +26,7 @@ use Wwwision\TypesJsonSchema\JsonSchemaGenerator;
 use Wwwision\TypesJsonSchema\JsonSchemaGeneratorOptions;
 use Wwwision\TypesOpenApi\Attributes\OpenApi;
 use Wwwision\TypesOpenApi\Attributes\Operation;
+use Wwwision\TypesOpenApi\Attributes\Parameter;
 use Wwwision\TypesOpenApi\Exception\AmbiguousPathException;
 use Wwwision\TypesOpenApi\Middleware\GeneratorMiddleware;
 use Wwwision\TypesOpenApi\Response\OpenApiResponse;
@@ -126,9 +127,17 @@ final class OpenApiGenerator
                         required: !$reflectionParameter->isOptional(),
                     );
                 } else {
+                    /** @var Parameter|null $parameterAttributeInstance */
+                    $parameterAttributeInstance = ($reflectionParameter->getAttributes(Parameter::class)[0] ?? null)?->newInstance();
+                    if ($parameterAttributeInstance?->in !== null) {
+                        $parameterLocation = $parameterAttributeInstance->in;
+                    } else {
+                        $parameterLocation = $operationAttributeInstance->path->containsPlaceholder($reflectionParameter->getName()) ? ParameterLocation::path : ParameterLocation::query;
+                    }
+
                     $parameters[$reflectionParameter->name] = new ParameterObject(
-                        name: $reflectionParameter->getName(),
-                        in: $operationAttributeInstance->path->containsPlaceholder($reflectionParameter->getName()) ? ParameterLocation::path : ParameterLocation::query,
+                        name: $parameterAttributeInstance->name ?? $reflectionParameter->getName(),
+                        in: $parameterLocation,
                         description: self::getDescription($reflectionParameter),
                         required: !$reflectionParameter->isOptional(),
                         schema: $parameterJsonSchema,

@@ -25,10 +25,9 @@ final class SomeApi {
     }
 }
 
-$generator = new OpenApiGenerator();
-$openApiObject = $generator->generate(SomeApi::class, OpenApiGeneratorOptions::create());
+$openApiObject = (new OpenApiGenerator())->generate(SomeApi::class);
 
-assert($openApiObject instanceof OpenAPIObject);
+assert($openApiObject instanceof OpenApiObject);
 $expectedSchema = <<<JSON
 {"openapi":"3.0.3","info":{"title":"","version":"0.0.0"},"paths":{"\/":{"get":{"operationId":"someEndpoint","responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"type":"string"}}}}}}}}}
 JSON;
@@ -63,6 +62,211 @@ foreach ($response->getHeaders() as $k => $values) {
 echo $response->getBody();
 ```
 
+### Parameters
+
+Arguments of the endpoint methods are automatically mapped to OpenAPI parameters.
+All OpenAPI parameter types are supported (`query`, `path`, `header`, `cookie`).
+
+#### Query parameters
+
+By default, the parameter type is `query`:
+
+```php
+final class SomeApi {
+
+    #[Operation(path: '/', method: 'GET')]
+    public function someEndpoint(string $someParam, string|null $someOptionalParam = null): string {
+        return $someParam;
+    }
+}
+```
+
+will accept requests like
+
+```http request
+GET /?someParam=foo HTTP/1.1
+```
+and
+```http request
+GET /?someParam=foo&someOptionalParam=bar HTTP/1.1
+```
+
+and will map the values to the corresponding method arguments.
+
+#### Path parameters
+
+Operations can also make use of [Path Templating](https://swagger.io/specification/#path-templating) in order to map method arguments from the query path:
+
+```php
+final class SomeApi {
+
+    #[Operation(path: '/static/{param1}/{param2}', method: 'GET')]
+    public function someEndpoint(string $param1, string $param2): string {
+        // ...
+    }
+}
+```
+
+Path params cannot be optional and must be defined in the path template.
+
+#### Header parameters
+
+To define a header parameter, the `#[Parameter]` attribute can be used:
+
+```php
+final class SomeApi {
+
+    #[Operation(path: '/', method: 'GET')]
+    public function someEndpoint(#[Parameter(in: ParameterLocation::header, name: "X-HeaderName")] string $paramFromHeader): string {
+        // ...
+    }
+}
+```
+
+#### Cookie parameters
+
+Likewise, to define a cookie parameter, the `#[Parameter]` attribute can be used:
+
+```php
+final class SomeApi {
+
+    #[Operation(path: '/', method: 'GET')]
+    public function someEndpoint(#[Parameter(in: ParameterLocation::cookie, name: "CookieName")] string $paramFromCookie): string {
+        // ...
+    }
+}
+```
+
+#### Complex types
+
+Complex parameter types are supported as well as long as they follow the [wwwision/types best practices](https://github.com/bwaidelich/types?tab=readme-ov-file#best-practices):
+
+```php
+#[StringBased(minLength: 3)]
+final readonly class Username {
+    private function __construct(
+        public string $value,
+    ) {}
+}
+
+final class SomeApi {
+
+    #[Operation(path: '/', method: 'GET')]
+    public function someEndpoint(Username $username): string {
+        return $username->value;
+    }
+}
+```
+
+This will validate and map the parameter and fail if it does not satisfy the constraints:
+
+```json
+{
+  "type": "https://www.rfc-editor.org/rfc/rfc9110#name-400-bad-request",
+  "title": "Bad Request",
+  "issues": [
+    {
+      "code": "too_small",
+      "message": "String must contain at least 3 character(s)",
+      "path": [
+        "query.username"
+      ],
+      "type": "string",
+      "minimum": 3,
+      "inclusive": true,
+      "exact": false
+    }
+  ]
+}
+```
+
+#### Example
+
+The following example makes use of all parameter types:
+
+```php
+final class SomeApi {
+
+    #[Operation(path: '/{paramFromPath}', method: 'GET')]
+    public function someEndpoint(
+        string $paramFromPath,
+        #[Parameter(in: ParameterLocation::header, name: "X-Foo")]
+        string $paramFromHeader,
+        #[Parameter(in: ParameterLocation::cookie, name: "SomeCookie")]
+        string $paramFromCookie,
+        string $paramFromQuery,
+    ): string {
+        return json_encode(func_get_args());
+    }
+}
+```
+
+This will lead to an OpenAPI definition like this:
+
+```json
+{
+  // ...
+  "paths": {
+    "/{paramFromPath}": {
+      "get": {
+        "operationId": "someEndpoint",
+        "parameters": [
+          {
+            "name": "paramFromPath",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Foo",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SomeCookie",
+            "in": "cookie",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paramFromQuery",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        // ...
+      }
+    }
+  }
+}
+```
+
+And an HTTP request like:
+
+```http request
+GET /valueFromPath?paramFromQuery=valueFromQuery HTTP/1.1
+Host: localhost:8000
+X-Foo: valueFromHeader
+Cookie: SomeCookie=valueFromCookie
+```
+
+...will result in the following response:
+
+```json
+["valueFromPath","valueFromHeader","valueFromCookie","valueFromQuery"]
+```
+
+### More Examples
 
 <details>
 <summary><b>More complex example</b></summary>
