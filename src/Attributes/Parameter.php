@@ -12,10 +12,10 @@ use function Wwwision\Types\instantiate;
 #[Attribute(Attribute::TARGET_PARAMETER)]
 final class Parameter
 {
-    public readonly ParameterLocation|null $in;
+    public readonly ParameterLocation $in;
 
     public function __construct(
-        ParameterLocation|string|null $in = null,
+        ParameterLocation|string $in,
         public readonly string|null $name = null,
     ) {
         $this->in = is_string($in) ? instantiate(ParameterLocation::class, $in) : $in;

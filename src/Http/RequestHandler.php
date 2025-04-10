@@ -81,30 +81,34 @@ final class RequestHandler
                 throw new UnauthorizedException('Missing credentials');
             }
         }
-        $parameters = [];
+        $arguments = [];
         if ($operationObject->requestBody !== null) {
             if (!$operationObject->requestBody instanceof RequestBodyObject) {
                 // TODO support reference request bodies
                 throw new RuntimeException('Reference request bodies are not yet supported');
             }
-            $parameters[] = $this->parseRequestBody($operationObject->requestBody, $request);
+            try {
+                $arguments[$operationObject->requestBody->meta['parameterName']] = $this->parseRequestBody($operationObject->requestBody, $request);
+            } catch (Throwable $e) {
+                return $this->badRequestResponseFromException($e, title: 'Bad Request Body');
+            }
         }
         if ($operationObject->parameters !== null) {
             try {
-                $parsedParameters = $this->parseParameters($operationObject->parameters, $request, $extractedVariables);
+                $parsedArguments = $this->parseParameters($operationObject->parameters, $request, $extractedVariables);
             } catch (Throwable $e) {
                 return $this->badRequestResponseFromException($e, title: 'Bad Query Parameters');
             }
-            $parameters = [...$parameters, ...$parsedParameters];
+            $arguments = [...$arguments, ...$parsedArguments];
         }
-        if ($authenticationContext !== null) {
-            $parameters[] = $authenticationContext;
+        if ($authenticationContext !== null && isset($operationObject->meta['authContextParameterName'])) {
+            $arguments[$operationObject->meta['authContextParameterName']] = $authenticationContext;
         }
 
         if (!method_exists($this->api, $methodName)) {
             throw new RuntimeException(sprintf('Method "%s" does not exist in object of type %s', $methodName, $this->api::class));
         }
-        $result = $this->api->{$methodName}(...$parameters);
+        $result = $this->api->{$methodName}(...$arguments);
         if ($result instanceof OpenApiResponse) {
             return $this->response($result::statusCode()->value, $result::contentType()?->value, $result->body(), $result instanceof WithAddedHeaders ? $result->getAddedHeaders() : []);
         }
@@ -148,11 +152,7 @@ final class RequestHandler
             if (!$mediaTypeSchema instanceof Schema) {
                 throw new RuntimeException(sprintf('Media type schema is not a Schema object: %s', get_debug_type($mediaTypeSchema)));
             }
-            try {
-                $parsedRequestBody = $mediaTypeSchema->instantiate($parsedRequestBody);
-            } catch (CoerceException $e) {
-                throw new BadRequestException(previous: $e);
-            }
+            return $mediaTypeSchema->instantiate($parsedRequestBody);
         }
         return $parsedRequestBody;
     }
@@ -204,7 +204,7 @@ final class RequestHandler
 
     /**
      * @param array<string, string>|null $extractedVariables
-     * @return array<mixed>
+     * @return array<string, mixed>
      * @throws CoerceException
      */
     private function parseParameters(ParameterOrReferenceObjects $parameterOrReferenceObjects, ServerRequestInterface $request, array|null $extractedVariables): array
@@ -235,9 +235,9 @@ final class RequestHandler
                     throw CoerceException::fromIssues($e->issues->withPrependedPathSegment($parameterObject->in->name . '.' . $parameterObject->name), $parameterValue, $parameterSchema);
                 }
             }
-            $parameters[$parameterObject->name] = $parameterValue;
+            $parameters[$parameterObject->meta['parameterName']] = $parameterValue;
         }
-        return array_values($parameters);
+        return $parameters;
     }
 
 
