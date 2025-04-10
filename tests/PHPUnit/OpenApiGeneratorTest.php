@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Wwwision\TypesOpenApi\Tests\PHPUnit;
 
-require_once __DIR__ . '/Fixture/Fixture.php';
-
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

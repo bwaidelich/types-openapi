@@ -43,7 +43,10 @@
     "autoload-dev": {
         "psr-4": {
             "Wwwision\\TypesOpenApi\\Tests\\": "tests/"
-        }
+        },
+        "classmap": [
+            "tests/PHPUnit/Fixture/Fixture.php"
+        ]
     },
     "scripts": {
         "test:phpstan": "phpstan --debug",
