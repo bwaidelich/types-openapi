@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Tests\PHPUnit\Types;
+namespace Wwwision\TypesOpenApi\Tests\PHPUnit\Types;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Wwwision\TypesOpenAPI\Types\SecurityRequirementObject;
+use Wwwision\TypesOpenApi\Types\SecurityRequirementObject;
 
 #[CoversClass(SecurityRequirementObject::class)]
 final class SecurityRequirementObjectTest extends TestCase

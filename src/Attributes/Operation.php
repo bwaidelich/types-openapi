@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Attributes;
+namespace Wwwision\TypesOpenApi\Attributes;
 
 use Attribute;
-use Wwwision\TypesOpenAPI\Types\HttpMethod;
-use Wwwision\TypesOpenAPI\Types\RelativePath;
-use Wwwision\TypesOpenAPI\Types\SecurityRequirementObject;
+use Wwwision\TypesOpenApi\Types\HttpMethod;
+use Wwwision\TypesOpenApi\Types\RelativePath;
+use Wwwision\TypesOpenApi\Types\SecurityRequirementObject;
 
 use function Wwwision\Types\instantiate;
 

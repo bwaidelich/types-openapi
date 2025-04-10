@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Tests\PHPUnit\Types;
+namespace Wwwision\TypesOpenApi\Tests\PHPUnit\Types;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Wwwision\TypesOpenAPI\Exception\AmbiguousPathException;
-use Wwwision\TypesOpenAPI\Types\PathObject;
-use Wwwision\TypesOpenAPI\Types\PathsObject;
-use Wwwision\TypesOpenAPI\Types\RelativePath;
+use Wwwision\TypesOpenApi\Exception\AmbiguousPathException;
+use Wwwision\TypesOpenApi\Types\PathObject;
+use Wwwision\TypesOpenApi\Types\PathsObject;
+use Wwwision\TypesOpenApi\Types\RelativePath;
 
 #[CoversClass(PathsObject::class)]
 final class PathsObjectTest extends TestCase

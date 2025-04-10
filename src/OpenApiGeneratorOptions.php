@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Types;
+namespace Wwwision\TypesOpenApi;
 
-final class OpenAPIGeneratorOptions
+use Wwwision\TypesOpenApi\Types\ApiVersion;
+use Wwwision\TypesOpenApi\Types\OpenApiVersion;
+use Wwwision\TypesOpenApi\Types\ServerObjects;
+
+final class OpenApiGeneratorOptions
 {
     private function __construct(
         public readonly null|ServerObjects $servers,

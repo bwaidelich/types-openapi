@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Attributes;
+namespace Wwwision\TypesOpenApi\Attributes;
 
 use Attribute;
-use Wwwision\TypesOpenAPI\Types\ApiVersion;
-use Wwwision\TypesOpenAPI\Types\OpenApiVersion;
-use Wwwision\TypesOpenAPI\Types\SecurityRequirementObject;
-use Wwwision\TypesOpenAPI\Types\SecuritySchemeObject;
-use Wwwision\TypesOpenAPI\Types\SecuritySchemeOrReferenceObjectMap;
+use Wwwision\TypesOpenApi\Types\ApiVersion;
+use Wwwision\TypesOpenApi\Types\OpenApiVersion;
+use Wwwision\TypesOpenApi\Types\SecurityRequirementObject;
+use Wwwision\TypesOpenApi\Types\SecuritySchemeObject;
+use Wwwision\TypesOpenApi\Types\SecuritySchemeOrReferenceObjectMap;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 final class OpenApi

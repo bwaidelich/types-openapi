@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Exception;
+namespace Wwwision\TypesOpenApi\Exception;
 
 use RuntimeException;
 

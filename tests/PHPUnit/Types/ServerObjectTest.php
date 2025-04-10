@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Tests\PHPUnit\Types;
+namespace Wwwision\TypesOpenApi\Tests\PHPUnit\Types;
 
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Wwwision\TypesOpenAPI\Types\ServerObject;
-use Wwwision\TypesOpenAPI\Types\ServerVariableObject;
-use Wwwision\TypesOpenAPI\Types\ServerVariableObjects;
+use Wwwision\TypesOpenApi\Types\ServerObject;
+use Wwwision\TypesOpenApi\Types\ServerVariableObject;
+use Wwwision\TypesOpenApi\Types\ServerVariableObjects;
 
 #[CoversClass(ServerObject::class)]
 final class ServerObjectTest extends TestCase

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Response;
+namespace Wwwision\TypesOpenApi\Response;
 
-use Wwwision\TypesOpenAPI\Types\HttpStatusCode;
+use Wwwision\TypesOpenApi\Types\HttpStatusCode;
 
 final class CreatedResponse implements OpenApiResponse
 {

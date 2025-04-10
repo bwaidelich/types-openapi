@@ -1,5 +1,6 @@
 .php-cs-fixer.cache
 .phpunit.cache
-vendor
-phpstan.neon
 composer.lock
+phpstan.neon
+tmp
+vendor

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Types;
+namespace Wwwision\TypesOpenApi\Types;
 
 use JsonSerializable;
 
 /**
  * @see https://swagger.io/specification/#openapi-object
  */
-final class OpenAPIObject implements JsonSerializable
+final class OpenApiObject implements JsonSerializable
 {
     /**
      * @param array<string>|null $tags

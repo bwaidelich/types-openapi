@@ -23,6 +23,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
+          coverage: none
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -42,5 +43,20 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: tmp
+          key: "cache-${{ matrix.php-versions }}-${{ github.run_id }}"
+          restore-keys: |
+            cache-
+
       - name: Run test suite
         run: composer run-script test
+
+      - name: Save cache
+        uses: actions/cache/save@v4
+        if: ${{ !cancelled() }}
+        with:
+          path: tmp
+          key: "cache-${{ matrix.php-versions }}-${{ github.run_id }}"

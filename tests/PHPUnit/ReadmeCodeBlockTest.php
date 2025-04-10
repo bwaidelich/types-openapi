@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Tests\PHPUnit;
+namespace Wwwision\TypesOpenApi\Tests\PHPUnit;
 
 use Exception;
 use Generator;
@@ -51,29 +51,29 @@ final class ReadmeCodeBlockTest extends TestCase
             namespace $namespace {
                 use GuzzleHttp\Psr7\HttpFactory;
                 use GuzzleHttp\Psr7\ServerRequest;
-                use Traversable;
                 use IteratorAggregate;
+                use Traversable;
                 use Wwwision\Types\Attributes\Description;
                 use Wwwision\Types\Attributes\IntegerBased;
                 use Wwwision\Types\Attributes\ListBased;
                 use Wwwision\Types\Attributes\StringBased;
                 use Wwwision\Types\Parser;
                 use Wwwision\Types\Schema\StringTypeFormat;
-                use Wwwision\TypesOpenAPI\Attributes\Mutation;
-                use Wwwision\TypesOpenAPI\Attributes\OpenApi;
-                use Wwwision\TypesOpenAPI\Attributes\Operation;
-                use Wwwision\TypesOpenAPI\Attributes\Query;
-                use Wwwision\TypesOpenAPI\Http\Exception\RequestException;
-                use Wwwision\TypesOpenAPI\Http\RequestHandler;
-                use Wwwision\TypesOpenAPI\OpenAPIGenerator;
-                use Wwwision\TypesOpenAPI\Response\CreatedResponse;
-                use Wwwision\TypesOpenAPI\Response\NotFoundResponse;
-                use Wwwision\TypesOpenAPI\Response\OkResponse;
-                use Wwwision\TypesOpenAPI\Response\ProblemBadRequestResponse;
-                use Wwwision\TypesOpenAPI\Response\ProblemInternalServerErrorResponse;
-                use Wwwision\TypesOpenAPI\Response\UnauthorizedResponse;
-                use Wwwision\TypesOpenAPI\Types\OpenAPIGeneratorOptions;
-                use Wwwision\TypesOpenAPI\Types\OpenAPIObject;
+                use Wwwision\TypesOpenApi\Attributes\Mutation;
+                use Wwwision\TypesOpenApi\Attributes\OpenApi;
+                use Wwwision\TypesOpenApi\Attributes\Operation;
+                use Wwwision\TypesOpenApi\Attributes\Query;
+                use Wwwision\TypesOpenApi\Http\Exception\RequestException;
+                use Wwwision\TypesOpenApi\Http\RequestHandler;
+                use Wwwision\TypesOpenApi\OpenApiGenerator;
+                use Wwwision\TypesOpenApi\OpenApiGeneratorOptions;
+                use Wwwision\TypesOpenApi\Response\CreatedResponse;
+                use Wwwision\TypesOpenApi\Response\NotFoundResponse;
+                use Wwwision\TypesOpenApi\Response\OkResponse;
+                use Wwwision\TypesOpenApi\Response\ProblemBadRequestResponse;
+                use Wwwision\TypesOpenApi\Response\ProblemInternalServerErrorResponse;
+                use Wwwision\TypesOpenApi\Response\UnauthorizedResponse;
+                use Wwwision\TypesOpenApi\Types\OpenApiObject;
                 use function Wwwision\Types\instantiate;
                 $code
             }

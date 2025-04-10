@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Tests\PHPUnit\Fixture;
+namespace Wwwision\TypesOpenApi\Tests\PHPUnit\Fixture;
 
 use ArrayIterator;
 use InvalidArgumentException;
@@ -13,10 +13,10 @@ use Wwwision\Types\Attributes\Discriminator;
 use Wwwision\Types\Attributes\ListBased;
 use Wwwision\Types\Attributes\StringBased;
 use Wwwision\Types\Schema\StringTypeFormat;
-use Wwwision\TypesOpenAPI\Attributes\OpenApi;
-use Wwwision\TypesOpenAPI\Attributes\Operation;
-use Wwwision\TypesOpenAPI\Response\NotFoundResponse;
-use Wwwision\TypesOpenAPI\Types\HttpMethod;
+use Wwwision\TypesOpenApi\Attributes\OpenApi;
+use Wwwision\TypesOpenApi\Attributes\Operation;
+use Wwwision\TypesOpenApi\Response\NotFoundResponse;
+use Wwwision\TypesOpenApi\Types\HttpMethod;
 
 use function Wwwision\Types\instantiate;
 
