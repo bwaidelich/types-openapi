@@ -32,7 +32,7 @@ final class OpenAPIGeneratorTest extends TestCase
         $this->generator->generate('NonExistingClass', OpenAPIGeneratorOptions::create());
     }
 
-    public function test_generate(): void
+    public function test_generate_petStore(): void
     {
         $servers = [];
         foreach (['local' => 'http://localhost:8081', 'prod' => 'https://foo-bar.com/'] as $description => $url) {
@@ -102,6 +102,9 @@ final class OpenAPIGeneratorTest extends TestCase
                                 },
                                 "400": {
                                     "description": "Bad Request"
+                                },
+                                "404": {
+                                    "description": "Not Found"
                                 }
                             }
                         }
@@ -140,6 +143,91 @@ final class OpenAPIGeneratorTest extends TestCase
                 }
             }
             JSON;
+
+        self::assertJsonStringEqualsJsonString($expected, json_encode($schema, JSON_THROW_ON_ERROR));
+    }
+
+    public function test_generate_anotherApi(): void
+    {
+        $schema = $this->generator->generate(Fixture\AnotherApi::class, OpenAPIGeneratorOptions::create());
+        $expected = <<<'JSON'
+        {
+            "openapi": "3.0.3",
+            "info": {
+                "title": "",
+                "version": "0.0.0"
+            },
+            "paths": {
+                "\/some-interface": {
+                    "patch": {
+                        "operationId": "someInterface",
+                        "responses": {
+                            "200": {
+                                "description": "Default",
+                                "content": {
+                                    "application\/json": {
+                                        "schema": {
+                                            "$ref": "#\/components\/schemas\/SomeInterface"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "components": {
+                "schemas": {
+                    "EmailAddress": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "ImplementationA": {
+                        "type": "object",
+                        "properties": {
+                            "someString": {
+                                "type": "string"
+                            },
+                            "emailAddress": {
+                                "$ref": "#\/components\/schemas\/EmailAddress"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "someString",
+                            "emailAddress"
+                        ]
+                    },
+                    "ImplementationB": {
+                        "type": "object",
+                        "properties": {
+                            "someBoolean": {
+                                "type": "boolean"
+                            },
+                            "emailAddress": {
+                                "$ref": "#\/components\/schemas\/EmailAddress"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "someBoolean",
+                            "emailAddress"
+                        ]
+                    },
+                    "SomeInterface": {
+                        "oneOf": [
+                            {
+                                "$ref": "#\/components\/schemas\/ImplementationA"
+                            },
+                            {
+                                "$ref": "#\/components\/schemas\/ImplementationB"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        JSON;
 
         self::assertJsonStringEqualsJsonString($expected, json_encode($schema, JSON_THROW_ON_ERROR));
     }

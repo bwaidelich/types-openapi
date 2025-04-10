@@ -15,18 +15,19 @@ use ReflectionUnionType;
 use RuntimeException;
 use UnitEnum;
 use Webmozart\Assert\Assert;
+use Wwwision\JsonSchema as Json;
 use Wwwision\Types\Attributes\Description;
 use Wwwision\Types\Parser;
-use Wwwision\Types\Schema\ListSchema;
+use Wwwision\Types\Schema as Types;
 use Wwwision\Types\Schema\LiteralBooleanSchema;
 use Wwwision\Types\Schema\LiteralIntegerSchema;
 use Wwwision\Types\Schema\LiteralStringSchema;
-use Wwwision\Types\Schema\Schema;
-use Wwwision\TypesJSONSchema\JSONSchemaGenerator;
-use Wwwision\TypesJSONSchema\Types as JSON;
+use Wwwision\TypesJsonSchema\JsonSchemaGenerator;
+use Wwwision\TypesJsonSchema\JsonSchemaGeneratorOptions;
 use Wwwision\TypesOpenAPI\Attributes\OpenApi;
 use Wwwision\TypesOpenAPI\Attributes\Operation;
 use Wwwision\TypesOpenAPI\Exception\AmbiguousPathException;
+use Wwwision\TypesOpenAPI\Middleware\GeneratorMiddleware;
 use Wwwision\TypesOpenAPI\Response\OpenApiResponse;
 use Wwwision\TypesOpenAPI\Security\AuthenticationContext;
 use Wwwision\TypesOpenAPI\Types\ApiVersion;
@@ -54,10 +55,16 @@ use Wwwision\TypesOpenAPI\Types\SchemaObjectMap;
 
 final class OpenAPIGenerator
 {
-    /**
-     * @var array<string, JSON\Schema>
-     */
-    private array $generatedJsonSchemas = [];
+    private JsonSchemaGenerator $jsonSchemaGenerator;
+
+    private GeneratorMiddleware $middleware;
+
+    public function __construct()
+    {
+        $this->middleware = new GeneratorMiddleware();
+        $this->jsonSchemaGenerator = new JsonSchemaGenerator(JsonSchemaGeneratorOptions::create()->withMiddleware($this->middleware));
+    }
+
 
     public function generate(string $className, OpenAPIGeneratorOptions $options): OpenAPIObject
     {
@@ -93,7 +100,7 @@ final class OpenAPIGenerator
                 }
 
                 $parameterSchema = self::reflectionTypeToSchema($parameterReflectionType);
-                $parameterJSONSchema = $this->schemaToJsonSchema($parameterSchema);
+                $parameterJsonSchema = $this->jsonSchemaGenerator->fromSchema($parameterSchema);
                 $defaultParameterValue = null;
                 if ($reflectionParameter->isDefaultValueAvailable()) {
                     $defaultParameterValue = $reflectionParameter->getDefaultValue();
@@ -108,7 +115,7 @@ final class OpenAPIGenerator
                     }
                     $requestBody = new RequestBodyObject(
                         content: MediaTypeObjectMap::create()->with(MediaTypeRange::fromString('application/json'), new MediaTypeObject(
-                            schema: $parameterJSONSchema,
+                            schema: $parameterJsonSchema,
                             meta: [
                                 'schema' => $parameterSchema,
                             ],
@@ -122,7 +129,7 @@ final class OpenAPIGenerator
                         in: $operationAttributeInstance->path->containsPlaceholder($reflectionParameter->getName()) ? ParameterLocation::path : ParameterLocation::query,
                         description: self::getDescription($reflectionParameter),
                         required: !$reflectionParameter->isOptional(),
-                        schema: $parameterJSONSchema,
+                        schema: $parameterJsonSchema,
                         default: $defaultParameterValue,
                         meta: [
                             'schema' => $parameterSchema,
@@ -174,9 +181,9 @@ final class OpenAPIGenerator
             $pathObjects = $pathObjects->with(RelativePath::fromString($path), $pathObject);
         }
 
-        if ($this->generatedJsonSchemas !== [] || $openApiAttributeInstance?->securitySchemes !== null) {
+        if ($this->middleware->generatedJsonSchemas !== [] || $openApiAttributeInstance?->securitySchemes !== null) {
             $componentsObject = new ComponentsObject(
-                schemas: $this->generatedJsonSchemas !== [] ? new SchemaObjectMap(...$this->generatedJsonSchemas) : null,
+                schemas: $this->middleware->generatedJsonSchemas !== [] ? new SchemaObjectMap(...$this->middleware->generatedJsonSchemas) : null,
                 securitySchemes: $openApiAttributeInstance?->securitySchemes,
             );
         } else {
@@ -196,28 +203,7 @@ final class OpenAPIGenerator
         );
     }
 
-
-
-    private function schemaToJsonSchema(Schema $schema): Json\Schema
-    {
-        if ($schema instanceof ListSchema) {
-            $jsonSchema = new Json\ArraySchema(
-                description: $schema->getDescription(),
-                items: $this->schemaToJsonSchema($schema->itemSchema),
-                minItems: $schema->minCount,
-                maxItems: $schema->maxCount,
-            );
-        } else {
-            $jsonSchema = JSONSchemaGenerator::fromSchema($schema);
-        }
-        if (in_array($schema::class, [LiteralStringSchema::class, LiteralBooleanSchema::class, LiteralIntegerSchema::class], true)) {
-            return $jsonSchema;
-        }
-        $this->generatedJsonSchemas[$schema->getName()] = $jsonSchema;
-        return new JSON\ReferenceSchema('#/components/schemas/' . $schema->getName());
-    }
-
-    private static function reflectionTypeToSchema(ReflectionNamedType $reflectionType): Schema
+    private static function reflectionTypeToSchema(ReflectionNamedType $reflectionType): Types\Schema
     {
         if ($reflectionType->isBuiltin()) {
             return match ($reflectionType->getName()) {
@@ -228,7 +214,9 @@ final class OpenAPIGenerator
             };
         }
         $typeClassName = $reflectionType->getName();
-        Assert::classExists($typeClassName);
+        if (!interface_exists($typeClassName)) {
+            Assert::classExists($typeClassName);
+        }
         return Parser::getSchema($typeClassName);
     }
 
@@ -277,12 +265,12 @@ final class OpenAPIGenerator
         return $responsesObject;
     }
 
-    private function returnTypeToSchema(ReflectionType $reflectionType): JSON\Schema
+    private function returnTypeToSchema(ReflectionType $reflectionType): Json\Schema
     {
         Assert::isInstanceOfAny($reflectionType, [ReflectionIntersectionType::class, ReflectionUnionType::class, ReflectionNamedType::class]);
         /** @var ReflectionIntersectionType|ReflectionUnionType|ReflectionNamedType $reflectionType **/
         if ($reflectionType instanceof ReflectionIntersectionType) {
-            return JSON\AllOfSchema::create(
+            return Json\AllOfSchema::create(
                 ...array_map(
                     $this->returnTypeToSchema(...),
                     $reflectionType->getTypes(),
@@ -290,9 +278,9 @@ final class OpenAPIGenerator
             );
         }
         if ($reflectionType instanceof ReflectionUnionType) {
-            return JSON\AnyOfSchema::create(...array_map($this->returnTypeToSchema(...), $reflectionType->getTypes()));
+            return Json\AnyOfSchema::create(...array_map($this->returnTypeToSchema(...), $reflectionType->getTypes()));
         }
         $schema = self::reflectionTypeToSchema($reflectionType);
-        return $this->schemaToJsonSchema($schema);
+        return $this->jsonSchemaGenerator->fromSchema($schema);
     }
 }

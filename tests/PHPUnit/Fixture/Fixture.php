@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Wwwision\TypesOpenAPI\Tests\PHPUnit\Fixture;
 
-
 use ArrayIterator;
 use InvalidArgumentException;
 use IteratorAggregate;
 use Traversable;
 use Wwwision\Types\Attributes\Description;
+use Wwwision\Types\Attributes\Discriminator;
 use Wwwision\Types\Attributes\ListBased;
+use Wwwision\Types\Attributes\StringBased;
+use Wwwision\Types\Schema\StringTypeFormat;
 use Wwwision\TypesOpenAPI\Attributes\OpenApi;
 use Wwwision\TypesOpenAPI\Attributes\Operation;
+use Wwwision\TypesOpenAPI\Response\NotFoundResponse;
 use Wwwision\TypesOpenAPI\Types\HttpMethod;
 
 use function Wwwision\Types\instantiate;
@@ -51,7 +54,6 @@ enum PetStatus
 }
 
 #[OpenApi(apiTitle: 'Pet Store API', apiVersion: '1.0.0')]
-
 final class PetStoreApi
 {
     private Pets $pets;
@@ -73,17 +75,25 @@ final class PetStoreApi
     }
 
     #[Operation(path: '/pet/{id}', method: HttpMethod::GET)]
-    public function petById(int $id): Pet
+    public function petById(int $id): Pet|NotFoundResponse
     {
         foreach ($this->pets as $pet) {
             if ($pet->id === $id) {
                 return $pet;
             }
         }
-        throw new InvalidArgumentException(sprintf('Pet #%d not found', $id));
+        return new NotFoundResponse();
     }
 
+}
 
+final class AnotherApi
+{
+    #[Operation(path: '/some-interface', method: HttpMethod::PATCH)]
+    public function someInterface(): SomeInterface
+    {
+        throw new InvalidArgumentException('Not implemented');
+    }
 }
 
 final class ApiWithConcreteAndTemplatedPathsOverlap
@@ -160,4 +170,46 @@ final class ApiWithTheSamePathStructureButDifferentMethods
     {
         return 'mine';
     }
+}
+
+#[Description('SomeInterface description')]
+#[Discriminator(propertyName: 'type', mapping: ['a' => ImplementationA::class, 'b' => ImplementationB::class])]
+interface SomeInterface
+{
+    #[Description('Custom description for "someMethod"')]
+    public function someMethod(): string;
+}
+
+final class ImplementationA implements SomeInterface
+{
+    private function __construct(
+        public readonly string $someString,
+        public readonly EmailAddress $emailAddress,
+    ) {}
+
+    public function someMethod(): string
+    {
+        return 'A';
+    }
+}
+
+final class ImplementationB implements SomeInterface
+{
+    private function __construct(
+        public readonly bool $someBoolean,
+        public readonly EmailAddress $emailAddress,
+    ) {}
+
+    public function someMethod(): string
+    {
+        return 'B';
+    }
+}
+
+#[StringBased(format: StringTypeFormat::email)]
+final class EmailAddress
+{
+    private function __construct(
+        public readonly string $value,
+    ) {}
 }

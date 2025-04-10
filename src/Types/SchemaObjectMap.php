@@ -8,19 +8,19 @@ use IteratorAggregate;
 use JsonSerializable;
 use Traversable;
 use Webmozart\Assert\Assert;
-use Wwwision\TypesJSONSchema\Types as JSON;
+use Wwwision\JsonSchema as Json;
 
 /**
- * @implements IteratorAggregate<JSON\Schema>
+ * @implements IteratorAggregate<Json\Schema>
  */
 final class SchemaObjectMap implements JsonSerializable, IteratorAggregate
 {
     /**
-     * @var array<string,JSON\Schema>
+     * @var array<string,Json\Schema>
      */
     private array $items;
 
-    public function __construct(JSON\Schema ...$items)
+    public function __construct(Json\Schema ...$items)
     {
         Assert::isMap($items);
         $this->items = $items;
@@ -32,7 +32,7 @@ final class SchemaObjectMap implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * @return array<string, JSON\Schema>
+     * @return array<string, Json\Schema>
      */
     public function jsonSerialize(): array
     {
