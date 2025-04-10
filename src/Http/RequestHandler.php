@@ -23,13 +23,13 @@ use Wwwision\TypesOpenApi\Http\Exception\NotFoundException;
 use Wwwision\TypesOpenApi\Http\Exception\RequestException;
 use Wwwision\TypesOpenApi\Http\Exception\UnauthorizedException;
 use Wwwision\TypesOpenApi\OpenApiGenerator;
+use Wwwision\TypesOpenApi\OpenApiGeneratorOptions;
 use Wwwision\TypesOpenApi\Response\OpenApiResponse;
 use Wwwision\TypesOpenApi\Response\ProblemResponseBuilder;
 use Wwwision\TypesOpenApi\Response\WithAddedHeaders;
 use Wwwision\TypesOpenApi\Security\AuthenticationContextProvider;
 use Wwwision\TypesOpenApi\Types\MediaTypeObject;
 use Wwwision\TypesOpenApi\Types\MediaTypeRange;
-use Wwwision\TypesOpenApi\Types\OpenApiGeneratorOptions;
 use Wwwision\TypesOpenApi\Types\OpenApiObject;
 use Wwwision\TypesOpenApi\Types\OperationObject;
 use Wwwision\TypesOpenApi\Types\ParameterLocation;
@@ -49,7 +49,7 @@ final class RequestHandler
         private readonly null|OpenApiGeneratorOptions $options = null,
         private readonly null|AuthenticationContextProvider $authenticationContextProvider = null,
     ) {
-        $this->openApiSchema = (new OpenApiGenerator())->generate($this->api::class, $this->options ?? OpenApiGeneratorOptions::create());
+        $this->openApiSchema = (new OpenApiGenerator($this->options))->generate($this->api::class);
     }
 
     /**

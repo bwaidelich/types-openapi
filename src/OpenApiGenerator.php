@@ -38,7 +38,6 @@ use Wwwision\TypesOpenApi\Types\InfoObject;
 use Wwwision\TypesOpenApi\Types\MediaTypeObject;
 use Wwwision\TypesOpenApi\Types\MediaTypeObjectMap;
 use Wwwision\TypesOpenApi\Types\MediaTypeRange;
-use Wwwision\TypesOpenApi\Types\OpenApiGeneratorOptions;
 use Wwwision\TypesOpenApi\Types\OpenApiObject;
 use Wwwision\TypesOpenApi\Types\OpenApiVersion;
 use Wwwision\TypesOpenApi\Types\OperationObject;
@@ -55,18 +54,21 @@ use Wwwision\TypesOpenApi\Types\SchemaObjectMap;
 
 final class OpenApiGenerator
 {
+    private OpenApiGeneratorOptions $options;
+
     private JsonSchemaGenerator $jsonSchemaGenerator;
 
     private GeneratorMiddleware $middleware;
 
-    public function __construct()
+    public function __construct(OpenApiGeneratorOptions|null $options = null)
     {
+        $this->options = $options ?? OpenApiGeneratorOptions::create();
         $this->middleware = new GeneratorMiddleware();
         $this->jsonSchemaGenerator = new JsonSchemaGenerator(JsonSchemaGeneratorOptions::create()->withMiddleware($this->middleware));
     }
 
 
-    public function generate(string $className, OpenApiGeneratorOptions $options): OpenApiObject
+    public function generate(string $className): OpenApiObject
     {
         Assert::classExists($className);
         $reflectionClass = new ReflectionClass($className);
@@ -196,7 +198,7 @@ final class OpenApiGenerator
                 title: $openApiAttributeInstance->apiTitle ?? '',
                 version: $openApiAttributeInstance->apiVersion ?? ApiVersion::default(),
             ),
-            servers: $options->servers,
+            servers: $this->options->servers,
             paths: $pathObjects,
             components: $componentsObject,
             security: $openApiAttributeInstance?->security,

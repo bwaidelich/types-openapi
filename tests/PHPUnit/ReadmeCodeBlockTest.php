@@ -51,8 +51,8 @@ final class ReadmeCodeBlockTest extends TestCase
             namespace $namespace {
                 use GuzzleHttp\Psr7\HttpFactory;
                 use GuzzleHttp\Psr7\ServerRequest;
-                use Traversable;
                 use IteratorAggregate;
+                use Traversable;
                 use Wwwision\Types\Attributes\Description;
                 use Wwwision\Types\Attributes\IntegerBased;
                 use Wwwision\Types\Attributes\ListBased;
@@ -66,13 +66,13 @@ final class ReadmeCodeBlockTest extends TestCase
                 use Wwwision\TypesOpenApi\Http\Exception\RequestException;
                 use Wwwision\TypesOpenApi\Http\RequestHandler;
                 use Wwwision\TypesOpenApi\OpenApiGenerator;
+                use Wwwision\TypesOpenApi\OpenApiGeneratorOptions;
                 use Wwwision\TypesOpenApi\Response\CreatedResponse;
                 use Wwwision\TypesOpenApi\Response\NotFoundResponse;
                 use Wwwision\TypesOpenApi\Response\OkResponse;
                 use Wwwision\TypesOpenApi\Response\ProblemBadRequestResponse;
                 use Wwwision\TypesOpenApi\Response\ProblemInternalServerErrorResponse;
                 use Wwwision\TypesOpenApi\Response\UnauthorizedResponse;
-                use Wwwision\TypesOpenApi\Types\OpenApiGeneratorOptions;
                 use Wwwision\TypesOpenApi\Types\OpenApiObject;
                 use function Wwwision\Types\instantiate;
                 $code

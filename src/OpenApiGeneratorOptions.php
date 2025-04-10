@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenApi\Types;
+namespace Wwwision\TypesOpenApi;
+
+use Wwwision\TypesOpenApi\Types\ApiVersion;
+use Wwwision\TypesOpenApi\Types\OpenApiVersion;
+use Wwwision\TypesOpenApi\Types\ServerObjects;
 
 final class OpenApiGeneratorOptions
 {
