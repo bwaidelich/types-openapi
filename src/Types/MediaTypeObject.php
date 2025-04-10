@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Wwwision\TypesOpenAPI\Types;
 
 use JsonSerializable;
-use Wwwision\TypesJSONSchema\Types as JSON;
+use Wwwision\JsonSchema as Json;
 
 /**
  * @see https://swagger.io/specification/#media-type-object
@@ -16,7 +16,7 @@ final class MediaTypeObject implements JsonSerializable
      * @param array<string, mixed> $meta key/value for custom metadata. This is not part of the OpenAPI specification and won't appear in the JSON serialized format
      */
     public function __construct(
-        public readonly null|JSON\Schema $schema = null,
+        public readonly null|Json\Schema $schema = null,
         // TODO add example
         public readonly null|ExampleOrReferenceObjectMap $examples = null,
         public readonly null|EncodingObjectMap $encoding = null,

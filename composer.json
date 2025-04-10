@@ -20,10 +20,10 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
-        "wwwision/types": "^1.2",
+        "php": ">=8.3",
+        "wwwision/types": "^1.4",
         "webmozart/assert": "^1.11",
-        "wwwision/types-jsonschema": "^1",
+        "wwwision/types-jsonschema": "^2",
         "psr/http-server-handler": "^1",
         "psr/http-server-middleware": "^1",
         "psr/http-factory":"^1"
@@ -31,7 +31,7 @@
     "require-dev": {
         "roave/security-advisories": "dev-latest",
         "phpstan/phpstan": "^2",
-        "phpunit/phpunit": "^11",
+        "phpunit/phpunit": "^10 || ^11 || ^12",
         "friendsofphp/php-cs-fixer": "^3",
         "guzzlehttp/psr7": "^2.7"
     },

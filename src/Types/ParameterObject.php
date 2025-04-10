@@ -6,8 +6,7 @@ namespace Wwwision\TypesOpenAPI\Types;
 
 use InvalidArgumentException;
 use JsonSerializable;
-use Wwwision\Types\Schema\Schema;
-use Wwwision\TypesJSONSchema\Types as JSON;
+use Wwwision\JsonSchema as Json;
 
 /**
  * @see https://swagger.io/specification/#parameter-object
@@ -27,7 +26,7 @@ final class ParameterObject implements JsonSerializable
         public readonly null|ParameterStyle $style = null,
         public readonly null|bool $explode = null,
         public readonly null|bool $allowReserved = null,
-        public readonly null|JSON\Schema $schema = null,
+        public readonly null|Json\Schema $schema = null,
         // TODO add examples
         // TODO add content
         public readonly mixed $default = null,
