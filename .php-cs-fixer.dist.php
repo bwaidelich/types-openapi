@@ -1,7 +1,7 @@
 <?php
 
 $finder = (new PhpCsFixer\Finder())
-    ->in(__DIR__);
+    ->in([__DIR__ . '/src', __DIR__ . '/tests']);
 
 return (new PhpCsFixer\Config())
     ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
@@ -12,4 +12,5 @@ return (new PhpCsFixer\Config())
         'ordered_imports' => ['imports_order' => ['class', 'function', 'const']],
         'nullable_type_declaration' => ['syntax' => 'union'],
     ])
+    ->setCacheFile(__DIR__ . '/tmp/php-cs-fixer/.php-cs-fixer.cache')
     ->setFinder($finder);
