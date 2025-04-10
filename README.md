@@ -25,8 +25,8 @@ final class SomeApi {
     }
 }
 
-$generator = new OpenAPIGenerator();
-$openApiObject = $generator->generate(SomeApi::class, OpenAPIGeneratorOptions::create());
+$generator = new OpenApiGenerator();
+$openApiObject = $generator->generate(SomeApi::class, OpenApiGeneratorOptions::create());
 
 assert($openApiObject instanceof OpenAPIObject);
 $expectedSchema = <<<JSON
@@ -168,8 +168,8 @@ final class SomeApi
     }
 }
 
-$generator = new OpenAPIGenerator();
-$openApiObject = $generator->generate(SomeApi::class, OpenAPIGeneratorOptions::create());
+$generator = new OpenApiGenerator();
+$openApiObject = $generator->generate(SomeApi::class, OpenApiGeneratorOptions::create());
 assert($openApiObject instanceof OpenAPIObject);
 $expectedSchema = <<<'JSON'
 {"openapi":"3.0.3","info":{"title":"Some API","version":"1.2.3"},"paths":{"\/users":{"get":{"operationId":"users","responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/Users"}}}}}},"post":{"operationId":"addUser","requestBody":{"content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/AddUser"}}},"required":true},"responses":{"201":{"description":"Created"},"400":{"description":"Bad Request"}}}},"\/users\/{username}":{"get":{"operationId":"userByUsername","parameters":[{"name":"username","in":"path","required":true,"schema":{"$ref":"#\/components\/schemas\/Username"}}],"responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/User"}}}},"400":{"description":"Bad Request"},"404":{"description":"Not Found"}}}}},"components":{"schemas":{"Username":{"type":"string","description":"Unique handle for a user in the API","minLength":1,"maxLength":200},"EmailAddress":{"type":"string","description":"Email address of a user","format":"email"},"User":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]},"Users":{"type":"array","description":"A set of users","items":{"$ref":"#\/components\/schemas\/User"}},"AddUser":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]}},"securitySchemes":{"basicAuth":{"type":"http","description":"Basic authentication","scheme":"basic"}}}}

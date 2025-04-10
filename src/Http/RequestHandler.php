@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Http;
+namespace Wwwision\TypesOpenApi\Http;
 
 use InvalidArgumentException;
 use JsonException;
@@ -17,39 +17,39 @@ use Throwable;
 use Wwwision\Types\Exception\CoerceException;
 use Wwwision\Types\Normalizer\Normalizer;
 use Wwwision\Types\Schema\Schema;
-use Wwwision\TypesOpenAPI\Http\Exception\BadRequestException;
-use Wwwision\TypesOpenAPI\Http\Exception\MethodNotAllowedException;
-use Wwwision\TypesOpenAPI\Http\Exception\NotFoundException;
-use Wwwision\TypesOpenAPI\Http\Exception\RequestException;
-use Wwwision\TypesOpenAPI\Http\Exception\UnauthorizedException;
-use Wwwision\TypesOpenAPI\OpenAPIGenerator;
-use Wwwision\TypesOpenAPI\Response\OpenApiResponse;
-use Wwwision\TypesOpenAPI\Response\ProblemResponseBuilder;
-use Wwwision\TypesOpenAPI\Response\WithAddedHeaders;
-use Wwwision\TypesOpenAPI\Security\AuthenticationContextProvider;
-use Wwwision\TypesOpenAPI\Types\MediaTypeObject;
-use Wwwision\TypesOpenAPI\Types\MediaTypeRange;
-use Wwwision\TypesOpenAPI\Types\OpenAPIGeneratorOptions;
-use Wwwision\TypesOpenAPI\Types\OpenAPIObject;
-use Wwwision\TypesOpenAPI\Types\OperationObject;
-use Wwwision\TypesOpenAPI\Types\ParameterLocation;
-use Wwwision\TypesOpenAPI\Types\ParameterObject;
-use Wwwision\TypesOpenAPI\Types\ParameterOrReferenceObjects;
-use Wwwision\TypesOpenAPI\Types\PathObject;
-use Wwwision\TypesOpenAPI\Types\RequestBodyObject;
+use Wwwision\TypesOpenApi\Http\Exception\BadRequestException;
+use Wwwision\TypesOpenApi\Http\Exception\MethodNotAllowedException;
+use Wwwision\TypesOpenApi\Http\Exception\NotFoundException;
+use Wwwision\TypesOpenApi\Http\Exception\RequestException;
+use Wwwision\TypesOpenApi\Http\Exception\UnauthorizedException;
+use Wwwision\TypesOpenApi\OpenApiGenerator;
+use Wwwision\TypesOpenApi\Response\OpenApiResponse;
+use Wwwision\TypesOpenApi\Response\ProblemResponseBuilder;
+use Wwwision\TypesOpenApi\Response\WithAddedHeaders;
+use Wwwision\TypesOpenApi\Security\AuthenticationContextProvider;
+use Wwwision\TypesOpenApi\Types\MediaTypeObject;
+use Wwwision\TypesOpenApi\Types\MediaTypeRange;
+use Wwwision\TypesOpenApi\Types\OpenApiGeneratorOptions;
+use Wwwision\TypesOpenApi\Types\OpenApiObject;
+use Wwwision\TypesOpenApi\Types\OperationObject;
+use Wwwision\TypesOpenApi\Types\ParameterLocation;
+use Wwwision\TypesOpenApi\Types\ParameterObject;
+use Wwwision\TypesOpenApi\Types\ParameterOrReferenceObjects;
+use Wwwision\TypesOpenApi\Types\PathObject;
+use Wwwision\TypesOpenApi\Types\RequestBodyObject;
 
 final class RequestHandler
 {
-    private OpenAPIObject $openApiSchema;
+    private OpenApiObject $openApiSchema;
 
     public function __construct(
         private readonly object $api,
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly StreamFactoryInterface $streamFactory,
-        private readonly null|OpenAPIGeneratorOptions $options = null,
+        private readonly null|OpenApiGeneratorOptions $options = null,
         private readonly null|AuthenticationContextProvider $authenticationContextProvider = null,
     ) {
-        $this->openApiSchema = (new OpenAPIGenerator())->generate($this->api::class, $this->options ?? OpenAPIGeneratorOptions::create());
+        $this->openApiSchema = (new OpenApiGenerator())->generate($this->api::class, $this->options ?? OpenApiGeneratorOptions::create());
     }
 
     /**

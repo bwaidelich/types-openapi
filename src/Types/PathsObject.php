@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Types;
+namespace Wwwision\TypesOpenApi\Types;
 
 use IteratorAggregate;
 use JsonSerializable;
 use Traversable;
-use Wwwision\TypesOpenAPI\Exception\AmbiguousPathException;
+use Wwwision\TypesOpenApi\Exception\AmbiguousPathException;
 
 /**
  * @see https://swagger.io/specification/#paths-object

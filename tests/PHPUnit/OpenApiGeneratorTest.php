@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Tests\PHPUnit;
+namespace Wwwision\TypesOpenApi\Tests\PHPUnit;
 
 require_once __DIR__ . '/Fixture/Fixture.php';
 
@@ -10,26 +10,26 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Wwwision\TypesOpenAPI\Exception\AmbiguousPathException;
-use Wwwision\TypesOpenAPI\OpenAPIGenerator;
-use Wwwision\TypesOpenAPI\Types\OpenAPIGeneratorOptions;
-use Wwwision\TypesOpenAPI\Types\ServerObject;
-use Wwwision\TypesOpenAPI\Types\ServerObjects;
+use Wwwision\TypesOpenApi\Exception\AmbiguousPathException;
+use Wwwision\TypesOpenApi\OpenApiGenerator;
+use Wwwision\TypesOpenApi\Types\OpenApiGeneratorOptions;
+use Wwwision\TypesOpenApi\Types\ServerObject;
+use Wwwision\TypesOpenApi\Types\ServerObjects;
 
-#[CoversClass(OpenAPIGenerator::class)]
-final class OpenAPIGeneratorTest extends TestCase
+#[CoversClass(OpenApiGenerator::class)]
+final class OpenApiGeneratorTest extends TestCase
 {
-    private OpenAPIGenerator $generator;
+    private OpenApiGenerator $generator;
 
     protected function setUp(): void
     {
-        $this->generator = new OpenAPIGenerator();
+        $this->generator = new OpenApiGenerator();
     }
 
     public function test_generate_throws_exception_if_specified_class_does_not_exist(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->generator->generate('NonExistingClass', OpenAPIGeneratorOptions::create());
+        $this->generator->generate('NonExistingClass', OpenApiGeneratorOptions::create());
     }
 
     public function test_generate_petStore(): void
@@ -38,7 +38,7 @@ final class OpenAPIGeneratorTest extends TestCase
         foreach (['local' => 'http://localhost:8081', 'prod' => 'https://foo-bar.com/'] as $description => $url) {
             $servers[] = new ServerObject($url, $description);
         }
-        $schema = $this->generator->generate(Fixture\PetStoreApi::class, OpenAPIGeneratorOptions::create(servers: new ServerObjects(...$servers), apiTitle: 'Overridden'));
+        $schema = $this->generator->generate(Fixture\PetStoreApi::class, OpenApiGeneratorOptions::create(servers: new ServerObjects(...$servers), apiTitle: 'Overridden'));
 
         $expected = <<<'JSON'
             {
@@ -149,7 +149,7 @@ final class OpenAPIGeneratorTest extends TestCase
 
     public function test_generate_anotherApi(): void
     {
-        $schema = $this->generator->generate(Fixture\AnotherApi::class, OpenAPIGeneratorOptions::create());
+        $schema = $this->generator->generate(Fixture\AnotherApi::class, OpenApiGeneratorOptions::create());
         $expected = <<<'JSON'
         {
             "openapi": "3.0.3",
@@ -248,7 +248,7 @@ final class OpenAPIGeneratorTest extends TestCase
     #[DataProvider('valid_paths_provider')]
     public function test_valid_paths(string $className, array $expectedPaths): void
     {
-        $schema = $this->generator->generate($className, OpenAPIGeneratorOptions::create());
+        $schema = $this->generator->generate($className, OpenApiGeneratorOptions::create());
         $actualPaths = [];
         self::assertNotNull($schema->paths);
         foreach ($schema->paths as $path => $pathObject) {
@@ -271,7 +271,7 @@ final class OpenAPIGeneratorTest extends TestCase
     public function test_invalid_paths(string $className): void
     {
         $this->expectException(AmbiguousPathException::class);
-        $this->generator->generate($className, OpenAPIGeneratorOptions::create());
+        $this->generator->generate($className, OpenApiGeneratorOptions::create());
     }
 
 }

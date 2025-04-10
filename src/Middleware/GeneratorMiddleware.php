@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Middleware;
+namespace Wwwision\TypesOpenApi\Middleware;
 
 use Closure;
 use Wwwision\JsonSchema as Json;

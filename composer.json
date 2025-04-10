@@ -1,6 +1,6 @@
 {
     "name": "wwwision/types-openapi",
-    "description": "Generator for OpenAPI schema files",
+    "description": "Generator for OpenAPI schema files, see https://www.openapis.org/",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -37,12 +37,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Wwwision\\TypesOpenAPI\\": "src/"
+            "Wwwision\\TypesOpenApi\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Wwwision\\TypesOpenAPI\\Tests\\": "tests/"
+            "Wwwision\\TypesOpenApi\\Tests\\": "tests/"
         }
     },
     "scripts": {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Http\Exception;
+namespace Wwwision\TypesOpenApi\Http\Exception;
 
 use Exception;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI;
+namespace Wwwision\TypesOpenApi;
 
 use InvalidArgumentException;
 use ReflectionClass;
@@ -24,36 +24,36 @@ use Wwwision\Types\Schema\LiteralIntegerSchema;
 use Wwwision\Types\Schema\LiteralStringSchema;
 use Wwwision\TypesJsonSchema\JsonSchemaGenerator;
 use Wwwision\TypesJsonSchema\JsonSchemaGeneratorOptions;
-use Wwwision\TypesOpenAPI\Attributes\OpenApi;
-use Wwwision\TypesOpenAPI\Attributes\Operation;
-use Wwwision\TypesOpenAPI\Exception\AmbiguousPathException;
-use Wwwision\TypesOpenAPI\Middleware\GeneratorMiddleware;
-use Wwwision\TypesOpenAPI\Response\OpenApiResponse;
-use Wwwision\TypesOpenAPI\Security\AuthenticationContext;
-use Wwwision\TypesOpenAPI\Types\ApiVersion;
-use Wwwision\TypesOpenAPI\Types\ComponentsObject;
-use Wwwision\TypesOpenAPI\Types\HttpMethod;
-use Wwwision\TypesOpenAPI\Types\HttpStatusCode;
-use Wwwision\TypesOpenAPI\Types\InfoObject;
-use Wwwision\TypesOpenAPI\Types\MediaTypeObject;
-use Wwwision\TypesOpenAPI\Types\MediaTypeObjectMap;
-use Wwwision\TypesOpenAPI\Types\MediaTypeRange;
-use Wwwision\TypesOpenAPI\Types\OpenAPIGeneratorOptions;
-use Wwwision\TypesOpenAPI\Types\OpenAPIObject;
-use Wwwision\TypesOpenAPI\Types\OpenApiVersion;
-use Wwwision\TypesOpenAPI\Types\OperationObject;
-use Wwwision\TypesOpenAPI\Types\ParameterLocation;
-use Wwwision\TypesOpenAPI\Types\ParameterObject;
-use Wwwision\TypesOpenAPI\Types\ParameterOrReferenceObjects;
-use Wwwision\TypesOpenAPI\Types\PathObject;
-use Wwwision\TypesOpenAPI\Types\PathsObject;
-use Wwwision\TypesOpenAPI\Types\RelativePath;
-use Wwwision\TypesOpenAPI\Types\RequestBodyObject;
-use Wwwision\TypesOpenAPI\Types\ResponseObject;
-use Wwwision\TypesOpenAPI\Types\ResponsesObject;
-use Wwwision\TypesOpenAPI\Types\SchemaObjectMap;
+use Wwwision\TypesOpenApi\Attributes\OpenApi;
+use Wwwision\TypesOpenApi\Attributes\Operation;
+use Wwwision\TypesOpenApi\Exception\AmbiguousPathException;
+use Wwwision\TypesOpenApi\Middleware\GeneratorMiddleware;
+use Wwwision\TypesOpenApi\Response\OpenApiResponse;
+use Wwwision\TypesOpenApi\Security\AuthenticationContext;
+use Wwwision\TypesOpenApi\Types\ApiVersion;
+use Wwwision\TypesOpenApi\Types\ComponentsObject;
+use Wwwision\TypesOpenApi\Types\HttpMethod;
+use Wwwision\TypesOpenApi\Types\HttpStatusCode;
+use Wwwision\TypesOpenApi\Types\InfoObject;
+use Wwwision\TypesOpenApi\Types\MediaTypeObject;
+use Wwwision\TypesOpenApi\Types\MediaTypeObjectMap;
+use Wwwision\TypesOpenApi\Types\MediaTypeRange;
+use Wwwision\TypesOpenApi\Types\OpenApiGeneratorOptions;
+use Wwwision\TypesOpenApi\Types\OpenApiObject;
+use Wwwision\TypesOpenApi\Types\OpenApiVersion;
+use Wwwision\TypesOpenApi\Types\OperationObject;
+use Wwwision\TypesOpenApi\Types\ParameterLocation;
+use Wwwision\TypesOpenApi\Types\ParameterObject;
+use Wwwision\TypesOpenApi\Types\ParameterOrReferenceObjects;
+use Wwwision\TypesOpenApi\Types\PathObject;
+use Wwwision\TypesOpenApi\Types\PathsObject;
+use Wwwision\TypesOpenApi\Types\RelativePath;
+use Wwwision\TypesOpenApi\Types\RequestBodyObject;
+use Wwwision\TypesOpenApi\Types\ResponseObject;
+use Wwwision\TypesOpenApi\Types\ResponsesObject;
+use Wwwision\TypesOpenApi\Types\SchemaObjectMap;
 
-final class OpenAPIGenerator
+final class OpenApiGenerator
 {
     private JsonSchemaGenerator $jsonSchemaGenerator;
 
@@ -66,7 +66,7 @@ final class OpenAPIGenerator
     }
 
 
-    public function generate(string $className, OpenAPIGeneratorOptions $options): OpenAPIObject
+    public function generate(string $className, OpenApiGeneratorOptions $options): OpenApiObject
     {
         Assert::classExists($className);
         $reflectionClass = new ReflectionClass($className);
@@ -190,7 +190,7 @@ final class OpenAPIGenerator
             $componentsObject = null;
         }
 
-        return new OpenAPIObject(
+        return new OpenApiObject(
             openapi: $openApiAttributeInstance->openApiVersion ?? OpenApiVersion::current(),
             info: new InfoObject(
                 title: $openApiAttributeInstance->apiTitle ?? '',

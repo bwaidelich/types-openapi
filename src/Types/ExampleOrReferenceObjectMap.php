@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Types;
+namespace Wwwision\TypesOpenApi\Types;
 
 use IteratorAggregate;
 use Traversable;

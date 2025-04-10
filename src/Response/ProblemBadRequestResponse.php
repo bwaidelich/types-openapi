@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Response;
+namespace Wwwision\TypesOpenApi\Response;
 
 use Wwwision\Types\Exception\CoerceException;
-use Wwwision\TypesOpenAPI\Types\HttpStatusCode;
-use Wwwision\TypesOpenAPI\Types\MediaTypeRange;
+use Wwwision\TypesOpenApi\Types\HttpStatusCode;
+use Wwwision\TypesOpenApi\Types\MediaTypeRange;
 
 final class ProblemBadRequestResponse implements OpenApiResponse
 {

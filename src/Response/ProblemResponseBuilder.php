@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Wwwision\TypesOpenAPI\Response;
+namespace Wwwision\TypesOpenApi\Response;
 
 use JsonException;
 use RuntimeException;
