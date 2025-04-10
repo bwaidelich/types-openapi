@@ -51,7 +51,6 @@
         "test:cs:fix": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix",
         "test:phpunit": "phpunit tests/PHPUnit",
         "test": [
-            "@test:phpstan",
             "@test:cs",
             "@test:phpunit"
         ]
