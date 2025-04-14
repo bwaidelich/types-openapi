@@ -65,7 +65,7 @@ final class OpenApiGenerator
     {
         $this->options = $options ?? OpenApiGeneratorOptions::create();
         $this->middleware = new GeneratorMiddleware();
-        $this->jsonSchemaGenerator = new JsonSchemaGenerator(JsonSchemaGeneratorOptions::create()->withMiddleware($this->middleware));
+        $this->jsonSchemaGenerator = new JsonSchemaGenerator(JsonSchemaGeneratorOptions::create(includeDiscriminator: true)->withMiddleware($this->middleware));
     }
 
 

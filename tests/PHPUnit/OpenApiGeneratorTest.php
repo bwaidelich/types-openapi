@@ -214,6 +214,13 @@ final class OpenApiGeneratorTest extends TestCase
                         ]
                     },
                     "SomeInterface": {
+                        "discriminator": {
+                            "mapping": {
+                                "a": "#/components/schemas/ImplementationA",
+                                "b": "#/components/schemas/ImplementationB"
+                            },
+                            "propertyName": "type"
+                        },
                         "oneOf": [
                             {
                                 "$ref": "#\/components\/schemas\/ImplementationA"
