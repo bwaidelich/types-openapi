@@ -89,7 +89,7 @@ final class OpenApiGenerator
             $operationAttributeInstance = $operationAttribute->newInstance();
 
             $requestBody = null;
-
+            $meta = [];
             $parameters = [];
 
             foreach ($reflectionMethod->getParameters() as $reflectionParameter) {
@@ -99,6 +99,9 @@ final class OpenApiGenerator
                     if ($openApiAttributeInstance?->security === null && $operationAttributeInstance->security === null) {
                         throw new RuntimeException(sprintf('The argument "%s" of method "%s" is of type %s, but this operation does not require authentication', $reflectionParameter->name, $reflectionMethod->getName(), $parameterReflectionType->getName()), 1743579641);
                     }
+                    $meta = [
+                        'authContextParameterName' => $reflectionParameter->name,
+                    ];
                     continue;
                 }
 
@@ -111,11 +114,43 @@ final class OpenApiGenerator
                         $defaultParameterValue = $defaultParameterValue->name;
                     }
                 }
-
-                if (in_array($operationAttributeInstance->method, [HttpMethod::POST, HttpMethod::PUT, HttpMethod::PATCH], true)) {
-                    if ($requestBody !== null) {
-                        throw new RuntimeException(sprintf('Method "%s" contains multiple parameters, but for HTTP method of "%s" only a single parameter is supported currently', $reflectionMethod->getName(), $operationAttributeInstance->method->name), 1706538672);
+                /** @var Parameter|null $parameterAttributeInstance */
+                $parameterAttributeInstance = ($reflectionParameter->getAttributes(Parameter::class)[0] ?? null)?->newInstance();
+                if ($parameterAttributeInstance !== null) {
+                    if ($parameterAttributeInstance->in === ParameterLocation::path && $parameterAttributeInstance->name !== null) {
+                        throw new RuntimeException(sprintf('The parameter "%s" of method "%s" contains a custom name, but for path parameters the name is derived from the path template', $reflectionParameter->getName(), $reflectionMethod->getName()), 1744296152);
                     }
+                    $parameters[] = new ParameterObject(
+                        name: $parameterAttributeInstance->name ?? $reflectionParameter->getName(),
+                        in: $parameterAttributeInstance->in,
+                        description: self::getDescription($reflectionParameter),
+                        required: !$reflectionParameter->isOptional(),
+                        schema: $parameterJsonSchema,
+                        default: $defaultParameterValue,
+                        meta: [
+                            'schema' => $parameterSchema,
+                            'parameterName' => $reflectionParameter->name,
+                        ],
+                    );
+                    continue;
+                }
+                if ($operationAttributeInstance->path->containsPlaceholder($reflectionParameter->getName())) {
+                    $parameters[] = new ParameterObject(
+                        name: $reflectionParameter->getName(),
+                        in: ParameterLocation::path,
+                        description: self::getDescription($reflectionParameter),
+                        required: !$reflectionParameter->isOptional(),
+                        schema: $parameterJsonSchema,
+                        default: $defaultParameterValue,
+                        meta: [
+                            'schema' => $parameterSchema,
+                            'parameterName' => $reflectionParameter->name,
+                        ],
+                    );
+                    continue;
+                }
+
+                if ($requestBody === null && in_array($operationAttributeInstance->method, [HttpMethod::POST, HttpMethod::PUT, HttpMethod::PATCH], true)) {
                     $requestBody = new RequestBodyObject(
                         content: MediaTypeObjectMap::create()->with(MediaTypeRange::fromString('application/json'), new MediaTypeObject(
                             schema: $parameterJsonSchema,
@@ -125,25 +160,21 @@ final class OpenApiGenerator
                         )),
                         description: self::getDescription($reflectionParameter),
                         required: !$reflectionParameter->isOptional(),
+                        meta: [
+                            'parameterName' => $reflectionParameter->name,
+                        ],
                     );
                 } else {
-                    /** @var Parameter|null $parameterAttributeInstance */
-                    $parameterAttributeInstance = ($reflectionParameter->getAttributes(Parameter::class)[0] ?? null)?->newInstance();
-                    if ($parameterAttributeInstance?->in !== null) {
-                        $parameterLocation = $parameterAttributeInstance->in;
-                    } else {
-                        $parameterLocation = $operationAttributeInstance->path->containsPlaceholder($reflectionParameter->getName()) ? ParameterLocation::path : ParameterLocation::query;
-                    }
-
-                    $parameters[$reflectionParameter->name] = new ParameterObject(
-                        name: $parameterAttributeInstance->name ?? $reflectionParameter->getName(),
-                        in: $parameterLocation,
+                    $parameters[] = new ParameterObject(
+                        name: $reflectionParameter->getName(),
+                        in: ParameterLocation::query,
                         description: self::getDescription($reflectionParameter),
                         required: !$reflectionParameter->isOptional(),
                         schema: $parameterJsonSchema,
                         default: $defaultParameterValue,
                         meta: [
                             'schema' => $parameterSchema,
+                            'parameterName' => $reflectionParameter->name,
                         ],
                     );
                 }
@@ -160,9 +191,7 @@ final class OpenApiGenerator
             if (($requestBody !== null || $parameters !== []) && !$responsesObject->hasResponseForStatusCode(400)) {
                 $responsesObject = $responsesObject->with(HttpStatusCode::fromInteger(400), new ResponseObject('Bad Request'));
             }
-            $meta = [
-                'methodName' => $reflectionMethod->getName(),
-            ];
+            $meta['methodName'] = $reflectionMethod->getName();
             $paths[$operationAttributeInstance->path->value][$operationAttributeInstance->method->name] = new OperationObject(
                 description: self::getDescription($reflectionMethod),
                 operationId: $reflectionMethod->getName(),
