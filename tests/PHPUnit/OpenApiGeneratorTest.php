@@ -160,6 +160,8 @@ final class OpenApiGeneratorTest extends TestCase
                 "\/some-interface": {
                     "patch": {
                         "operationId": "someInterface",
+                        "summary": "Operation summary",
+                        "description": "Operation description",
                         "responses": {
                             "200": {
                                 "description": "Default",

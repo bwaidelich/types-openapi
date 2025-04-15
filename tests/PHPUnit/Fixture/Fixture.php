@@ -89,7 +89,8 @@ final class PetStoreApi
 
 final class AnotherApi
 {
-    #[Operation(path: '/some-interface', method: HttpMethod::PATCH)]
+    #[Operation(path: '/some-interface', method: HttpMethod::PATCH, summary: 'Operation summary')]
+    #[Description('Operation description')]
     public function someInterface(): SomeInterface
     {
         throw new InvalidArgumentException('Not implemented');

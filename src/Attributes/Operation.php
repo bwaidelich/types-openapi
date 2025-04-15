@@ -26,6 +26,7 @@ final class Operation
     public function __construct(
         RelativePath|string $path,
         HttpMethod|string $method,
+        public string|null $summary = null,
         SecurityRequirementObject|array|string|null $security = null,
     ) {
         $this->path = is_string($path) ? RelativePath::fromString($path) : $path;
