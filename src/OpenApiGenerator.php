@@ -193,6 +193,7 @@ final class OpenApiGenerator
             }
             $meta['methodName'] = $reflectionMethod->getName();
             $paths[$operationAttributeInstance->path->value][$operationAttributeInstance->method->name] = new OperationObject(
+                summary: $operationAttributeInstance->summary,
                 description: self::getDescription($reflectionMethod),
                 operationId: $reflectionMethod->getName(),
                 parameters: $parameters !== [] ? new ParameterOrReferenceObjects(...$parameters) : null,

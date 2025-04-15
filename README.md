@@ -352,19 +352,22 @@ final class SomeApi
     ) {
     }
 
-    #[Operation(path: '/users', method: 'GET')]
+    #[Operation(path: '/users', method: 'GET', summary: 'Get Users')]
+    #[Description('Retrieves all users from the repository')]
     public function users(): Users
     {
         return $this->userRepository->findAll();
     }
 
-    #[Operation(path: '/users/{username}', method: 'GET')]
+    #[Operation(path: '/users/{username}', method: 'GET', summary: 'Get a single user by its username')]
+    #[Description('Retrieves a single user or returns a 404 response if not found')]
     public function userByUsername(Username $username): User|NotFoundResponse
     {
         return $this->userRepository->findByUsername($username) ?: new NotFoundResponse();
     }
 
-    #[Operation(path: '/users', method: 'POST')]
+    #[Operation(path: '/users', method: 'POST', summary: 'Add a new user')]
+    #[Description('Saves a new user to the repository')]
     public function addUser(AddUser $command): CreatedResponse
     {
         $this->userRepository->add(new User($command->username, $command->emailAddress));
@@ -376,7 +379,7 @@ $generator = new OpenApiGenerator();
 $openApiObject = $generator->generate(SomeApi::class, OpenApiGeneratorOptions::create());
 assert($openApiObject instanceof OpenApiObject);
 $expectedSchema = <<<'JSON'
-{"openapi":"3.0.3","info":{"title":"Some API","version":"1.2.3"},"paths":{"\/users":{"get":{"operationId":"users","responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/Users"}}}}}},"post":{"operationId":"addUser","requestBody":{"content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/AddUser"}}},"required":true},"responses":{"201":{"description":"Created"},"400":{"description":"Bad Request"}}}},"\/users\/{username}":{"get":{"operationId":"userByUsername","parameters":[{"name":"username","in":"path","required":true,"schema":{"$ref":"#\/components\/schemas\/Username"}}],"responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/User"}}}},"400":{"description":"Bad Request"},"404":{"description":"Not Found"}}}}},"components":{"schemas":{"Username":{"type":"string","description":"Unique handle for a user in the API","minLength":1,"maxLength":200},"EmailAddress":{"type":"string","description":"Email address of a user","format":"email"},"User":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]},"Users":{"type":"array","description":"A set of users","items":{"$ref":"#\/components\/schemas\/User"}},"AddUser":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]}},"securitySchemes":{"basicAuth":{"type":"http","description":"Basic authentication","scheme":"basic"}}}}
+{"openapi":"3.0.3","info":{"title":"Some API","version":"1.2.3"},"paths":{"\/users":{"get":{"summary":"Get Users","description":"Retrieves all users from the repository","operationId":"users","responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/Users"}}}}}},"post":{"summary":"Add a new user","description":"Saves a new user to the repository","operationId":"addUser","requestBody":{"content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/AddUser"}}},"required":true},"responses":{"201":{"description":"Created"},"400":{"description":"Bad Request"}}}},"\/users\/{username}":{"get":{"summary":"Get a single user by its username","description":"Retrieves a single user or returns a 404 response if not found","operationId":"userByUsername","parameters":[{"name":"username","in":"path","required":true,"schema":{"$ref":"#\/components\/schemas\/Username"}}],"responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/User"}}}},"400":{"description":"Bad Request"},"404":{"description":"Not Found"}}}}},"components":{"schemas":{"Username":{"type":"string","description":"Unique handle for a user in the API","minLength":1,"maxLength":200},"EmailAddress":{"type":"string","description":"Email address of a user","format":"email"},"User":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]},"Users":{"type":"array","description":"A set of users","items":{"$ref":"#\/components\/schemas\/User"}},"AddUser":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]}},"securitySchemes":{"basicAuth":{"type":"http","description":"Basic authentication","scheme":"basic"}}}}
 JSON;
 assert(json_encode($openApiObject) === $expectedSchema);
 ```
