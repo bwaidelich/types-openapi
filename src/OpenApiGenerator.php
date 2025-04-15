@@ -236,6 +236,11 @@ final class OpenApiGenerator
             info: new InfoObject(
                 title: $openApiAttributeInstance->apiTitle ?? '',
                 version: $openApiAttributeInstance->apiVersion ?? ApiVersion::default(),
+                summary: $openApiAttributeInstance?->summary,
+                description: self::getDescription($reflectionClass),
+                termsOfService: $openApiAttributeInstance?->termsOfService,
+                contact: $openApiAttributeInstance?->contact,
+                license: $openApiAttributeInstance?->license,
             ),
             servers: $this->options->servers,
             paths: $pathObjects,
@@ -261,7 +266,10 @@ final class OpenApiGenerator
         return Parser::getSchema($typeClassName);
     }
 
-    private static function getDescription(ReflectionMethod|ReflectionParameter $reflection): null|string
+    /**
+     * @param ReflectionClass<object>|ReflectionMethod|ReflectionParameter $reflection
+     */
+    private static function getDescription(ReflectionClass|ReflectionMethod|ReflectionParameter $reflection): null|string
     {
         $descriptionAttributes = $reflection->getAttributes(Description::class);
         if (!isset($descriptionAttributes[0])) {

@@ -23,6 +23,18 @@ final class LicenseObject implements JsonSerializable
     }
 
     /**
+     * @param array{name: string, identifier?: string, url?: string} $array
+     */
+    public static function fromArray(array $array): self
+    {
+        return new self(
+            name: $array['name'],
+            identifier: $array['identifier'] ?? null,
+            url: $array['url'] ?? null,
+        );
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array

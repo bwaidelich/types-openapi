@@ -18,6 +18,18 @@ final class ContactObject implements JsonSerializable
     ) {}
 
     /**
+     * @param array{name?: string, url?: string, email?: string} $array
+     */
+    public static function fromArray(array $array): self
+    {
+        return new self(
+            name: $array['name'] ?? null,
+            url: $array['url'] ?? null,
+            email: $array['email'] ?? null,
+        );
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
