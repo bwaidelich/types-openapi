@@ -266,12 +266,69 @@ Cookie: SomeCookie=valueFromCookie
 ["valueFromPath","valueFromHeader","valueFromCookie","valueFromQuery"]
 ```
 
+### Security
+
+To implement custom authentication schemes, you can implement the `AuthenticationContextProvider` interface and return an instance of your custom `AuthenticationContext` class:
+
+```php
+final class CustomAuthContext implements AuthenticationContext {
+    public function __construct(
+        public readonly string|null $authenticatedUserId,
+    ) {
+    }
+}
+
+final class AuthContextProvider implements AuthenticationContextProvider {
+    public function getAuthenticationContext(ServerRequestInterface $request, SecurityRequirementObject $securityRequirement): CustomAuthContext|null {
+        // TODO: evaluate the request and security requirement
+        return new CustomAuthContext(authenticatedUserId: 'john.doe');
+    }
+}
+```
+
+The `AuthenticationContext` is passed to the endpoint method as an additional argument, if the `security` option of the `Operation` attribute is set.
+The `RequestHandler` will automatically call the `getAuthenticationContext()` method of your provider and pass the result to the endpoint method.
+Security schemes can be defined using the `#[OpenApi]` attribute:
+
+```php
+// ...
+
+#[OpenApi(
+    // ...
+    securitySchemes: [
+        'someSchema' => [
+            'type' => 'http',
+            'scheme' => 'bearer',
+        ],
+    ],
+)]
+final class SomeApi {
+
+    #[Operation(path: '/', method: 'POST', security: 'someSchema')]
+    public function securedEndpoint(CustomAuthContext $authContext): CreatedResponse
+    {
+        if ($authContext->authenticatedUserId !== 'john.doe') {
+            return new UnauthorizedResponse();
+        }
+        // do something
+        return new CreatedResponse();
+    }
+}
+```
+
 ### More Examples
 
 <details>
 <summary><b>More complex example</b></summary>
 
 ```php
+final class CustomAuthContext implements AuthenticationContext {
+    public function __construct(
+        public readonly string|null $authenticatedUserId,
+    ) {
+    }
+}
+
 #[Description('Unique handle for a user in the API')]
 #[StringBased(minLength: 1, maxLength: 200)]
 final class Username {
@@ -343,7 +400,8 @@ interface UserRepository {
     public function add(User $user): void;
 }
 
-#[OpenApi(apiTitle: 'Some API', apiVersion: '1.2.3', openApiVersion: '3.0.3', securitySchemes: ['basicAuth' => ['type' => 'http', 'scheme' => 'basic', 'description' => 'Basic authentication']])]
+#[OpenApi(apiTitle: 'Some API', apiVersion: '1.2.3', openApiVersion: '3.0.3', contact: ['name' => 'Contact Name', 'url' => 'https://contact-url.example.com', 'email' => 'contact@example.com'], license: ['name' => 'License name', 'id' => 'licenseId', 'url' => 'https://license.example.com'], securitySchemes: ['basicAuth' => ['type' => 'http', 'scheme' => 'basic', 'description' => 'Basic authentication']])]
+#[Description('Some API description')]
 final class SomeApi
 {
 
@@ -366,10 +424,13 @@ final class SomeApi
         return $this->userRepository->findByUsername($username) ?: new NotFoundResponse();
     }
 
-    #[Operation(path: '/users', method: 'POST', summary: 'Add a new user')]
+    #[Operation(path: '/users', method: 'POST', summary: 'Add a new user', security: 'basicAuth')]
     #[Description('Saves a new user to the repository')]
-    public function addUser(AddUser $command): CreatedResponse
+    public function addUser(AddUser $command, CustomAuthContext $authContext): CreatedResponse|UnauthorizedResponse
     {
+        if ($authContext->authenticatedUserId !== 'john.doe') {
+            return new UnauthorizedResponse();
+        }
         $this->userRepository->add(new User($command->username, $command->emailAddress));
         return new CreatedResponse();
     }
@@ -379,7 +440,7 @@ $generator = new OpenApiGenerator();
 $openApiObject = $generator->generate(SomeApi::class, OpenApiGeneratorOptions::create());
 assert($openApiObject instanceof OpenApiObject);
 $expectedSchema = <<<'JSON'
-{"openapi":"3.0.3","info":{"title":"Some API","version":"1.2.3"},"paths":{"\/users":{"get":{"summary":"Get Users","description":"Retrieves all users from the repository","operationId":"users","responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/Users"}}}}}},"post":{"summary":"Add a new user","description":"Saves a new user to the repository","operationId":"addUser","requestBody":{"content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/AddUser"}}},"required":true},"responses":{"201":{"description":"Created"},"400":{"description":"Bad Request"}}}},"\/users\/{username}":{"get":{"summary":"Get a single user by its username","description":"Retrieves a single user or returns a 404 response if not found","operationId":"userByUsername","parameters":[{"name":"username","in":"path","required":true,"schema":{"$ref":"#\/components\/schemas\/Username"}}],"responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/User"}}}},"400":{"description":"Bad Request"},"404":{"description":"Not Found"}}}}},"components":{"schemas":{"Username":{"type":"string","description":"Unique handle for a user in the API","minLength":1,"maxLength":200},"EmailAddress":{"type":"string","description":"Email address of a user","format":"email"},"User":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]},"Users":{"type":"array","description":"A set of users","items":{"$ref":"#\/components\/schemas\/User"}},"AddUser":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]}},"securitySchemes":{"basicAuth":{"type":"http","description":"Basic authentication","scheme":"basic"}}}}
+{"openapi":"3.0.3","info":{"title":"Some API","version":"1.2.3","description":"Some API description","contact":{"name":"Contact Name","url":"https:\/\/contact-url.example.com","email":"contact@example.com"},"license":{"name":"License name","url":"https:\/\/license.example.com"}},"paths":{"\/users":{"get":{"summary":"Get Users","description":"Retrieves all users from the repository","operationId":"users","responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/Users"}}}}}},"post":{"summary":"Add a new user","description":"Saves a new user to the repository","operationId":"addUser","requestBody":{"content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/AddUser"}}},"required":true},"responses":{"201":{"description":"Created"},"400":{"description":"Bad Request"},"401":{"description":"Unauthorized"}},"security":[{"basicAuth":[]}]}},"\/users\/{username}":{"get":{"summary":"Get a single user by its username","description":"Retrieves a single user or returns a 404 response if not found","operationId":"userByUsername","parameters":[{"name":"username","in":"path","required":true,"schema":{"$ref":"#\/components\/schemas\/Username"}}],"responses":{"200":{"description":"Default","content":{"application\/json":{"schema":{"$ref":"#\/components\/schemas\/User"}}}},"400":{"description":"Bad Request"},"404":{"description":"Not Found"}}}}},"components":{"schemas":{"Username":{"type":"string","description":"Unique handle for a user in the API","minLength":1,"maxLength":200},"EmailAddress":{"type":"string","description":"Email address of a user","format":"email"},"User":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]},"Users":{"type":"array","description":"A set of users","items":{"$ref":"#\/components\/schemas\/User"}},"AddUser":{"type":"object","properties":{"username":{"$ref":"#\/components\/schemas\/Username"},"emailAddress":{"$ref":"#\/components\/schemas\/EmailAddress"}},"additionalProperties":false,"required":["username","emailAddress"]}},"securitySchemes":{"basicAuth":{"type":"http","description":"Basic authentication","scheme":"basic"}}}}
 JSON;
 assert(json_encode($openApiObject) === $expectedSchema);
 ```
@@ -416,9 +477,16 @@ final class FakeUserRepository implements UserRepository {
     }
 }
 
+final class AuthContextProvider implements AuthenticationContextProvider {
+    public function getAuthenticationContext(ServerRequestInterface $request, SecurityRequirementObject $securityRequirement): CustomAuthContext|null {
+        // TODO: evaluate the request and security requirement
+        return new CustomAuthContext(authenticatedUserId: 'john.doe');
+    }
+}
+
 $api = new SomeApi(new FakeUserRepository());
 $httpFactory = new HttpFactory();
-$requestHandler = new RequestHandler($api, $httpFactory, $httpFactory);
+$requestHandler = new RequestHandler($api, $httpFactory, $httpFactory, authenticationContextProvider: new AuthContextProvider());
 
 $request = ServerRequest::fromGlobals();
 try {
