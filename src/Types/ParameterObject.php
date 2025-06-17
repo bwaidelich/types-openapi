@@ -14,7 +14,6 @@ use Wwwision\JsonSchema as Json;
 final class ParameterObject implements JsonSerializable
 {
     /**
-     * @param mixed|null $default This parameter is not documented in the specification, but it seems to be supported and can be a good fit when referring to a component Schema with a different default value
      * @param array<string, mixed> $meta key/value for custom metadata. This is not part of the OpenAPI specification and won't appear in the JSON serialized format
      */
     public function __construct(
@@ -29,7 +28,6 @@ final class ParameterObject implements JsonSerializable
         public readonly null|Json\Schema $schema = null,
         // TODO add examples
         // TODO add content
-        public readonly mixed $default = null,
         public readonly array $meta = [],
     ) {
         if ($this->required === false && $this->in === ParameterLocation::path) {

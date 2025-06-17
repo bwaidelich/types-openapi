@@ -241,6 +241,99 @@ final class OpenApiGeneratorTest extends TestCase
     }
 
 
+    public function test_generate_apiWithParameters(): void
+    {
+        $schema = (new OpenApiGenerator())->generate(Fixture\ApiWithParameters::class);
+        $expected = <<<'JSON'
+        {
+            "openapi": "3.0.3",
+            "info": {
+                "title": "",
+                "version": "0.0.0"
+            },
+            "paths": {
+                "\/required-params": {
+                    "get": {
+                        "operationId": "requiredParams",
+                        "parameters": [
+                            {
+                                "name": "query-param",
+                                "in": "query",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "name": "X-Header-Param",
+                                "in": "header",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            {
+                                "name": "Cookie-Param",
+                                "in": "cookie",
+                                "required": true,
+                                "schema": {
+                                    "type": "boolean"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "400": {
+                                "description": "Bad Request"
+                            }
+                        }
+                    }
+                },
+                "\/optional-params": {
+                    "get": {
+                        "operationId": "optionalParams",
+                        "parameters": [
+                            {
+                                "name": "query-param",
+                                "in": "query",
+                                "required": false,
+                                "schema": {
+                                    "type": "string",
+                                    "default": "default"
+                                }
+                            },
+                            {
+                                "name": "X-Header-Param",
+                                "in": "header",
+                                "required": false,
+                                "schema": {
+                                    "type": "integer",
+                                    "default": 123
+                                }
+                            },
+                            {
+                                "name": "Cookie-Param",
+                                "in": "cookie",
+                                "required": false,
+                                "schema": {
+                                    "type": "boolean",
+                                    "default": true
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "400": {
+                                "description": "Bad Request"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        JSON;
+
+        self::assertJsonStringEqualsJsonString($expected, json_encode($schema, JSON_THROW_ON_ERROR));
+    }
+
     /**
      * @return iterable<mixed>
      */

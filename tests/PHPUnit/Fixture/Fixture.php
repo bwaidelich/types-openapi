@@ -15,8 +15,10 @@ use Wwwision\Types\Attributes\StringBased;
 use Wwwision\Types\Schema\StringTypeFormat;
 use Wwwision\TypesOpenApi\Attributes\OpenApi;
 use Wwwision\TypesOpenApi\Attributes\Operation;
+use Wwwision\TypesOpenApi\Attributes\Parameter;
 use Wwwision\TypesOpenApi\Response\NotFoundResponse;
 use Wwwision\TypesOpenApi\Types\HttpMethod;
+use Wwwision\TypesOpenApi\Types\ParameterLocation;
 
 use function Wwwision\Types\instantiate;
 
@@ -171,6 +173,29 @@ final class ApiWithTheSamePathStructureButDifferentMethods
     {
         return 'mine';
     }
+}
+
+final class ApiWithParameters
+{
+    #[Operation(path: '/required-params', method: HttpMethod::GET)]
+    public function requiredParams(
+        #[Parameter(in: ParameterLocation::query, name: 'query-param')]
+        string $param1,
+        #[Parameter(in: ParameterLocation::header, name: 'X-Header-Param')]
+        int $param2,
+        #[Parameter(in: ParameterLocation::cookie, name: 'Cookie-Param')]
+        bool $param3,
+    ): void {}
+
+    #[Operation(path: '/optional-params', method: HttpMethod::GET)]
+    public function optionalParams(
+        #[Parameter(in: ParameterLocation::query, name: 'query-param')]
+        string $param1 = 'default',
+        #[Parameter(in: ParameterLocation::header, name: 'X-Header-Param')]
+        int $param2 = 123,
+        #[Parameter(in: ParameterLocation::cookie, name: 'Cookie-Param')]
+        bool $param3 = true,
+    ): void {}
 }
 
 #[Description('SomeInterface description')]

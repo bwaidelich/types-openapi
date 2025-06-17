@@ -107,11 +107,13 @@ final class OpenApiGenerator
 
                 $parameterSchema = self::reflectionTypeToSchema($parameterReflectionType);
                 $parameterJsonSchema = $this->jsonSchemaGenerator->fromSchema($parameterSchema);
-                $defaultParameterValue = null;
                 if ($reflectionParameter->isDefaultValueAvailable()) {
                     $defaultParameterValue = $reflectionParameter->getDefaultValue();
                     if ($defaultParameterValue instanceof UnitEnum) {
                         $defaultParameterValue = $defaultParameterValue->name;
+                    }
+                    if (method_exists($parameterJsonSchema, 'with')) {
+                        $parameterJsonSchema = $parameterJsonSchema->with(default: $defaultParameterValue); // @phpstan-ignore-line
                     }
                 }
                 /** @var Parameter|null $parameterAttributeInstance */
@@ -126,7 +128,6 @@ final class OpenApiGenerator
                         description: self::getDescription($reflectionParameter),
                         required: !$reflectionParameter->isOptional(),
                         schema: $parameterJsonSchema,
-                        default: $defaultParameterValue,
                         meta: [
                             'schema' => $parameterSchema,
                             'parameterName' => $reflectionParameter->name,
@@ -141,7 +142,6 @@ final class OpenApiGenerator
                         description: self::getDescription($reflectionParameter),
                         required: !$reflectionParameter->isOptional(),
                         schema: $parameterJsonSchema,
-                        default: $defaultParameterValue,
                         meta: [
                             'schema' => $parameterSchema,
                             'parameterName' => $reflectionParameter->name,
@@ -171,7 +171,6 @@ final class OpenApiGenerator
                         description: self::getDescription($reflectionParameter),
                         required: !$reflectionParameter->isOptional(),
                         schema: $parameterJsonSchema,
-                        default: $defaultParameterValue,
                         meta: [
                             'schema' => $parameterSchema,
                             'parameterName' => $reflectionParameter->name,
