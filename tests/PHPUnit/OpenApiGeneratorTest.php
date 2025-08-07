@@ -334,6 +334,53 @@ final class OpenApiGeneratorTest extends TestCase
         self::assertJsonStringEqualsJsonString($expected, json_encode($schema, JSON_THROW_ON_ERROR));
     }
 
+    public function test_generate_apiWithEmptyObject(): void
+    {
+        $schema = (new OpenApiGenerator())->generate(Fixture\ApiWithEmptyObject::class);
+        $expected = <<<'JSON'
+        {
+            "openapi": "3.0.3",
+            "info": {
+                "title": "",
+                "version": "0.0.0"
+            },
+            "paths": {
+                "\/empty-object": {
+                    "post": {
+                        "operationId": "emptyObject",
+                        "requestBody": {
+                            "content": {
+                                "application\/json": {
+                                    "schema": {
+                                        "$ref": "#\/components\/schemas\/EmptyObject"
+                                    }
+                                }
+                            },
+                            "required": true
+                        },
+                        "responses": {
+                            "400": {
+                                "description": "Bad Request"
+                            }
+                        }
+                    }
+                }
+            },
+            "components": {
+                "schemas": {
+                    "EmptyObject": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": false
+                    }
+                }
+            }
+        }
+        JSON;
+
+        self::assertJsonStringEqualsJsonString($expected, json_encode($schema, JSON_THROW_ON_ERROR));
+    }
+
     /**
      * @return iterable<mixed>
      */
