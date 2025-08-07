@@ -198,6 +198,17 @@ final class ApiWithParameters
     ): void {}
 }
 
+final class ApiWithEmptyObject
+{
+    #[Operation(path: '/empty-object', method: HttpMethod::POST)]
+    public function emptyObject(EmptyObject $object): void {}
+}
+
+final class EmptyObject
+{
+    public function __construct() {}
+}
+
 #[Description('SomeInterface description')]
 #[Discriminator(propertyName: 'type', mapping: ['a' => ImplementationA::class, 'b' => ImplementationB::class])]
 interface SomeInterface
