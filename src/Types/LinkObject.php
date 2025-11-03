@@ -15,12 +15,12 @@ final class LinkObject implements JsonSerializable
      * @param array<string, mixed>|null $parameters
      */
     public function __construct(
-        public readonly null|string $operationRef = null,
-        public readonly null|string $operationId = null,
-        public readonly null|array $parameters = null,
+        public readonly string|null $operationRef = null,
+        public readonly string|null $operationId = null,
+        public readonly array|null $parameters = null,
         // TODO add requestBody
-        public readonly null|string $description = null,
-        public readonly null|ServerObject $server = null,
+        public readonly string|null $description = null,
+        public readonly ServerObject|null $server = null,
     ) {}
 
     /**

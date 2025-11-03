@@ -16,10 +16,10 @@ final class MediaTypeObject implements JsonSerializable
      * @param array<string, mixed> $meta key/value for custom metadata. This is not part of the OpenAPI specification and won't appear in the JSON serialized format
      */
     public function __construct(
-        public readonly null|Json\Schema $schema = null,
+        public readonly Json\Schema|null $schema = null,
         // TODO add example
-        public readonly null|ExampleOrReferenceObjectMap $examples = null,
-        public readonly null|EncodingObjectMap $encoding = null,
+        public readonly ExampleOrReferenceObjectMap|null $examples = null,
+        public readonly EncodingObjectMap|null $encoding = null,
         public readonly array $meta = [],
     ) {}
 

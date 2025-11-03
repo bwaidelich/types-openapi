@@ -19,13 +19,13 @@ final class ParameterObject implements JsonSerializable
     public function __construct(
         public readonly string $name,
         public readonly ParameterLocation $in,
-        public readonly null|string $description = null,
-        public readonly null|bool $required = null,
-        public readonly null|bool $deprecated = null,
-        public readonly null|ParameterStyle $style = null,
-        public readonly null|bool $explode = null,
-        public readonly null|bool $allowReserved = null,
-        public readonly null|Json\Schema $schema = null,
+        public readonly string|null $description = null,
+        public readonly bool|null $required = null,
+        public readonly bool|null $deprecated = null,
+        public readonly ParameterStyle|null $style = null,
+        public readonly bool|null $explode = null,
+        public readonly bool|null $allowReserved = null,
+        public readonly Json\Schema|null $schema = null,
         // TODO add examples
         // TODO add content
         public readonly array $meta = [],

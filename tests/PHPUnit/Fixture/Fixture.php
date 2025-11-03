@@ -27,7 +27,7 @@ final class Pet
     private function __construct(
         public readonly int $id,
         public readonly string $name,
-        public readonly null|string $tag = null,
+        public readonly string|null $tag = null,
     ) {}
 }
 

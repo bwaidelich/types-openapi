@@ -15,8 +15,8 @@ final class ServerObject implements JsonSerializable
 {
     public function __construct(
         public readonly string $url,
-        public readonly null|string $description = null,
-        public readonly null|ServerVariableObjects $variables = null,
+        public readonly string|null $description = null,
+        public readonly ServerVariableObjects|null $variables = null,
     ) {}
 
     /**

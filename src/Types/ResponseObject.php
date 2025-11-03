@@ -13,9 +13,9 @@ final class ResponseObject implements JsonSerializable
 {
     public function __construct(
         public readonly string $description,
-        public readonly null|HeaderOrReferenceObjectMap $headers = null,
-        public readonly null|MediaTypeObjectMap $content = null,
-        public readonly null|LinkOrReferenceObjectMap $links = null,
+        public readonly HeaderOrReferenceObjectMap|null $headers = null,
+        public readonly MediaTypeObjectMap|null $content = null,
+        public readonly LinkOrReferenceObjectMap|null $links = null,
     ) {}
 
     /**

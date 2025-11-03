@@ -12,9 +12,9 @@ use JsonSerializable;
 final class ContactObject implements JsonSerializable
 {
     public function __construct(
-        public readonly null|string $name = null,
-        public readonly null|string $url = null,
-        public readonly null|string $email = null,
+        public readonly string|null $name = null,
+        public readonly string|null $url = null,
+        public readonly string|null $email = null,
     ) {}
 
     /**

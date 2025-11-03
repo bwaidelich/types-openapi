@@ -268,7 +268,7 @@ final class OpenApiGenerator
     /**
      * @param ReflectionClass<object>|ReflectionMethod|ReflectionParameter $reflection
      */
-    private static function getDescription(ReflectionClass|ReflectionMethod|ReflectionParameter $reflection): null|string
+    private static function getDescription(ReflectionClass|ReflectionMethod|ReflectionParameter $reflection): string|null
     {
         $descriptionAttributes = $reflection->getAttributes(Description::class);
         if (!isset($descriptionAttributes[0])) {
