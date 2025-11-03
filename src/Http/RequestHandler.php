@@ -14,8 +14,10 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Throwable;
+use Webmozart\Assert\Assert;
 use Wwwision\Types\Exception\CoerceException;
 use Wwwision\Types\Normalizer\Normalizer;
+use Wwwision\Types\Options;
 use Wwwision\Types\Schema\Schema;
 use Wwwision\TypesOpenApi\Http\Exception\BadRequestException;
 use Wwwision\TypesOpenApi\Http\Exception\MethodNotAllowedException;
@@ -46,8 +48,8 @@ final class RequestHandler
         private readonly object $api,
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly StreamFactoryInterface $streamFactory,
-        private readonly null|OpenApiGeneratorOptions $options = null,
-        private readonly null|AuthenticationContextProvider $authenticationContextProvider = null,
+        private readonly OpenApiGeneratorOptions|null $options = null,
+        private readonly AuthenticationContextProvider|null $authenticationContextProvider = null,
     ) {
         $this->openApiSchema = (new OpenApiGenerator($this->options))->generate($this->api::class);
     }
@@ -87,6 +89,7 @@ final class RequestHandler
                 // TODO support reference request bodies
                 throw new RuntimeException('Reference request bodies are not yet supported');
             }
+            Assert::string($operationObject->requestBody->meta['parameterName']);
             try {
                 $arguments[$operationObject->requestBody->meta['parameterName']] = $this->parseRequestBody($operationObject->requestBody, $request);
             } catch (Throwable $e) {
@@ -102,6 +105,7 @@ final class RequestHandler
             $arguments = [...$arguments, ...$parsedArguments];
         }
         if ($authenticationContext !== null && isset($operationObject->meta['authContextParameterName'])) {
+            Assert::string($operationObject->meta['authContextParameterName']);
             $arguments[$operationObject->meta['authContextParameterName']] = $authenticationContext;
         }
 
@@ -152,7 +156,7 @@ final class RequestHandler
             if (!$mediaTypeSchema instanceof Schema) {
                 throw new RuntimeException(sprintf('Media type schema is not a Schema object: %s', get_debug_type($mediaTypeSchema)));
             }
-            return $mediaTypeSchema->instantiate($parsedRequestBody);
+            return $mediaTypeSchema->instantiate($parsedRequestBody, Options::create());
         }
         return $parsedRequestBody;
     }
@@ -230,11 +234,12 @@ final class RequestHandler
                     throw new RuntimeException(sprintf('Parameter schema is not a Schema object: %s', get_debug_type($parameterSchema)));
                 }
                 try {
-                    $parameterValue = $parameterSchema->instantiate($parameterValue);
+                    $parameterValue = $parameterSchema->instantiate($parameterValue, Options::create());
                 } catch (CoerceException $e) {
                     throw CoerceException::fromIssues($e->issues->withPrependedPathSegment($parameterObject->in->name . '.' . $parameterObject->name), $parameterValue, $parameterSchema);
                 }
             }
+            Assert::string($parameterObject->meta['parameterName']);
             $parameters[$parameterObject->meta['parameterName']] = $parameterValue;
         }
         return $parameters;

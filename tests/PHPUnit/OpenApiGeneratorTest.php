@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Webmozart\Assert\Assert;
 use Wwwision\TypesOpenApi\Exception\AmbiguousPathException;
 use Wwwision\TypesOpenApi\OpenApiGenerator;
 use Wwwision\TypesOpenApi\OpenApiGeneratorOptions;
@@ -400,6 +401,7 @@ final class OpenApiGeneratorTest extends TestCase
         $actualPaths = [];
         self::assertNotNull($schema->paths);
         foreach ($schema->paths as $path => $pathObject) {
+            Assert::string($path);
             $actualPaths[$path] = array_keys(iterator_to_array($pathObject->operationsByMethod()));
         }
         self::assertSame($expectedPaths, $actualPaths);

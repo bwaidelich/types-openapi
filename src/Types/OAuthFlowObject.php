@@ -18,7 +18,7 @@ final class OAuthFlowObject implements JsonSerializable
         public readonly string $authorizationUrl,
         public readonly string $tokenUrl,
         public readonly array $scopes,
-        public readonly null|string $refreshUrl = null,
+        public readonly string|null $refreshUrl = null,
     ) {}
 
     /**

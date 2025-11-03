@@ -12,9 +12,9 @@ use JsonSerializable;
 final class HeaderObject implements JsonSerializable
 {
     public function __construct(
-        public readonly null|string $description = null,
-        public readonly null|bool $required = null,
-        public readonly null|bool $deprecated = null,
+        public readonly string|null $description = null,
+        public readonly bool|null $required = null,
+        public readonly bool|null $deprecated = null,
     ) {}
 
     /**

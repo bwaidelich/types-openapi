@@ -12,19 +12,19 @@ use JsonSerializable;
 final class PathObject implements JsonSerializable
 {
     public function __construct(
-        public readonly null|string $ref = null,
-        public readonly null|string $summary = null,
-        public readonly null|string $description = null,
-        public readonly null|OperationObject $get = null,
-        public readonly null|OperationObject $put = null,
-        public readonly null|OperationObject $post = null,
-        public readonly null|OperationObject $delete = null,
-        public readonly null|OperationObject $options = null,
-        public readonly null|OperationObject $head = null,
-        public readonly null|OperationObject $patch = null,
-        public readonly null|OperationObject $trace = null,
-        public readonly null|ServerObjects $servers = null,
-        public readonly null|ParameterObjects $parameters = null,
+        public readonly string|null $ref = null,
+        public readonly string|null $summary = null,
+        public readonly string|null $description = null,
+        public readonly OperationObject|null $get = null,
+        public readonly OperationObject|null $put = null,
+        public readonly OperationObject|null $post = null,
+        public readonly OperationObject|null $delete = null,
+        public readonly OperationObject|null $options = null,
+        public readonly OperationObject|null $head = null,
+        public readonly OperationObject|null $patch = null,
+        public readonly OperationObject|null $trace = null,
+        public readonly ServerObjects|null $servers = null,
+        public readonly ParameterObjects|null $parameters = null,
     ) {}
 
     /**

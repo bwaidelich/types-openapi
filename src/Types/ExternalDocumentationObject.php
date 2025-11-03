@@ -11,7 +11,7 @@ final class ExternalDocumentationObject
 {
     public function __construct(
         public readonly string $url,
-        public readonly null|string $description = null,
+        public readonly string|null $description = null,
     ) {}
 
     /**
