@@ -21,7 +21,7 @@
     ],
     "require": {
         "php": ">=8.3",
-        "wwwision/types": "^1.4",
+        "wwwision/types": "^1.8",
         "webmozart/assert": "^1.11",
         "wwwision/types-jsonschema": "^2",
         "psr/http-server-handler": "^1",
