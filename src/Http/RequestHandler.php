@@ -16,6 +16,7 @@ use RuntimeException;
 use Throwable;
 use Wwwision\Types\Exception\CoerceException;
 use Wwwision\Types\Normalizer\Normalizer;
+use Wwwision\Types\Options;
 use Wwwision\Types\Schema\Schema;
 use Wwwision\TypesOpenApi\Http\Exception\BadRequestException;
 use Wwwision\TypesOpenApi\Http\Exception\MethodNotAllowedException;
@@ -152,7 +153,7 @@ final class RequestHandler
             if (!$mediaTypeSchema instanceof Schema) {
                 throw new RuntimeException(sprintf('Media type schema is not a Schema object: %s', get_debug_type($mediaTypeSchema)));
             }
-            return $mediaTypeSchema->instantiate($parsedRequestBody);
+            return $mediaTypeSchema->instantiate($parsedRequestBody, Options::create());
         }
         return $parsedRequestBody;
     }
@@ -230,7 +231,7 @@ final class RequestHandler
                     throw new RuntimeException(sprintf('Parameter schema is not a Schema object: %s', get_debug_type($parameterSchema)));
                 }
                 try {
-                    $parameterValue = $parameterSchema->instantiate($parameterValue);
+                    $parameterValue = $parameterSchema->instantiate($parameterValue, Options::create());
                 } catch (CoerceException $e) {
                     throw CoerceException::fromIssues($e->issues->withPrependedPathSegment($parameterObject->in->name . '.' . $parameterObject->name), $parameterValue, $parameterSchema);
                 }
