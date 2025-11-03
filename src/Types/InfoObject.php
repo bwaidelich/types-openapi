@@ -14,11 +14,11 @@ final class InfoObject implements JsonSerializable
     public function __construct(
         public readonly string $title,
         public readonly ApiVersion $version,
-        public readonly null|string $summary = null,
-        public readonly null|string $description = null,
-        public readonly null|string $termsOfService = null,
-        public readonly null|ContactObject $contact = null,
-        public readonly null|LicenseObject $license = null,
+        public readonly string|null $summary = null,
+        public readonly string|null $description = null,
+        public readonly string|null $termsOfService = null,
+        public readonly ContactObject|null $contact = null,
+        public readonly LicenseObject|null $license = null,
     ) {}
 
     /**

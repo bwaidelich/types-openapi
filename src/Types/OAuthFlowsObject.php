@@ -12,10 +12,10 @@ use JsonSerializable;
 final class OAuthFlowsObject implements JsonSerializable
 {
     public function __construct(
-        public readonly null|OAuthFlowObject $implicit = null,
-        public readonly null|OAuthFlowObject $password = null,
-        public readonly null|OAuthFlowObject $clientCredentials = null,
-        public readonly null|OAuthFlowObject $authorizationCode = null,
+        public readonly OAuthFlowObject|null $implicit = null,
+        public readonly OAuthFlowObject|null $password = null,
+        public readonly OAuthFlowObject|null $clientCredentials = null,
+        public readonly OAuthFlowObject|null $authorizationCode = null,
     ) {}
 
     /**

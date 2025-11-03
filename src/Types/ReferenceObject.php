@@ -13,8 +13,8 @@ final class ReferenceObject implements JsonSerializable
 {
     public function __construct(
         public readonly string $ref,
-        public readonly null|string $summary = null,
-        public readonly null|string $description = null,
+        public readonly string|null $summary = null,
+        public readonly string|null $description = null,
     ) {}
 
     /**

@@ -57,7 +57,6 @@ final class SecurityRequirementObject implements JsonSerializable
                     $result[] = [$item => []];
                 }
             } else {
-                Assert::string($valueKey);
                 Assert::isList($item);
                 Assert::allString($item);
                 $result[] = [$valueKey => $item];

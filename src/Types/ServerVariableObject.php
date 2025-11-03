@@ -16,8 +16,8 @@ final class ServerVariableObject implements JsonSerializable
      */
     public function __construct(
         public readonly string $default,
-        public readonly null|array $enum = null,
-        public readonly null|string $description = null,
+        public readonly array|null $enum = null,
+        public readonly string|null $description = null,
     ) {}
 
     /**

@@ -15,10 +15,10 @@ final class ExampleObject implements JsonSerializable
      * @param int|float|string|bool|array<mixed>|null $value
      */
     public function __construct(
-        public readonly null|string $summary = null,
-        public readonly null|string $description = null,
+        public readonly string|null $summary = null,
+        public readonly string|null $description = null,
         public readonly int|float|string|bool|array|null $value = null,
-        public readonly null|string $externalValue = null,
+        public readonly string|null $externalValue = null,
     ) {}
 
     /**

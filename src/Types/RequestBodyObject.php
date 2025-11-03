@@ -16,8 +16,8 @@ final class RequestBodyObject implements JsonSerializable
      */
     public function __construct(
         public readonly MediaTypeObjectMap $content,
-        public readonly null|string $description = null,
-        public readonly null|bool $required = null,
+        public readonly string|null $description = null,
+        public readonly bool|null $required = null,
         public readonly array $meta = [],
     ) {}
 

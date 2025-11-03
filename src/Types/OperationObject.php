@@ -16,18 +16,18 @@ final class OperationObject implements JsonSerializable
      * @param array<string, mixed> $meta key/value for custom metadata. This is not part of the OpenAPI specification and won't appear in the JSON serialized format
      */
     public function __construct(
-        public readonly null|array $tags = null,
-        public readonly null|string $summary = null,
-        public readonly null|string $description = null,
-        public readonly null|ExternalDocumentationObject $externalDocs = null,
-        public readonly null|string $operationId = null,
-        public readonly null|ParameterOrReferenceObjects $parameters = null,
+        public readonly array|null $tags = null,
+        public readonly string|null $summary = null,
+        public readonly string|null $description = null,
+        public readonly ExternalDocumentationObject|null $externalDocs = null,
+        public readonly string|null $operationId = null,
+        public readonly ParameterOrReferenceObjects|null $parameters = null,
         public readonly RequestBodyObject|ReferenceObject|null $requestBody = null,
-        public readonly null|ResponsesObject $responses = null,
+        public readonly ResponsesObject|null $responses = null,
         // TODO add callbacks
-        public readonly null|bool $deprecated = null,
-        public readonly null|SecurityRequirementObject $security = null,
-        public readonly null|ServerObjects $servers = null,
+        public readonly bool|null $deprecated = null,
+        public readonly SecurityRequirementObject|null $security = null,
+        public readonly ServerObjects|null $servers = null,
         public readonly array $meta = [],
     ) {}
 

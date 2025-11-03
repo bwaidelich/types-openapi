@@ -11,10 +11,10 @@ use Wwwision\TypesOpenApi\Types\ServerObjects;
 final class OpenApiGeneratorOptions
 {
     private function __construct(
-        public readonly null|ServerObjects $servers,
-        public readonly null|OpenApiVersion $openApiVersion,
-        public readonly null|string $apiTitle,
-        public readonly null|ApiVersion $apiVersion,
+        public readonly ServerObjects|null $servers,
+        public readonly OpenApiVersion|null $openApiVersion,
+        public readonly string|null $apiTitle,
+        public readonly ApiVersion|null $apiVersion,
     ) {}
 
     public static function create(

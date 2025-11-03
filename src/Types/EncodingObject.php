@@ -12,11 +12,11 @@ use JsonSerializable;
 final class EncodingObject implements JsonSerializable
 {
     public function __construct(
-        public readonly null|string $contentType = null,
-        public readonly null|HeaderOrReferenceObjectMap $headers = null,
-        public readonly null|string $style = null,
-        public readonly null|bool $explode = null,
-        public readonly null|bool $allowReserverd = null,
+        public readonly string|null $contentType = null,
+        public readonly HeaderOrReferenceObjectMap|null $headers = null,
+        public readonly string|null $style = null,
+        public readonly bool|null $explode = null,
+        public readonly bool|null $allowReserverd = null,
     ) {}
 
     /**

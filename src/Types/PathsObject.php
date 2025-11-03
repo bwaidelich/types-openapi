@@ -56,7 +56,7 @@ final class PathsObject implements IteratorAggregate, JsonSerializable
     /**
      * @param array<mixed>|null $matches
      */
-    public function match(string $path, array|null &$matches = null): null|PathObject
+    public function match(string $path, array|null &$matches = null): PathObject|null
     {
         foreach ($this->items as $item) {
             if ($item['path']->matches($path, $matches)) {

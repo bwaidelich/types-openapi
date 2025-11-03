@@ -14,13 +14,13 @@ final class SecuritySchemeObject implements JsonSerializable
 {
     public function __construct(
         public readonly SecuritySchemeType $type,
-        public readonly null|string $description = null,
-        public readonly null|string $name = null,
-        public readonly null|SecuritySchemeApiKeyLocation $in = null,
-        public readonly null|string $scheme = null,
-        public readonly null|string $bearerFormat = null,
-        public readonly null|OAuthFlowsObject $flows = null,
-        public readonly null|string $openIdConnectUrl = null,
+        public readonly string|null $description = null,
+        public readonly string|null $name = null,
+        public readonly SecuritySchemeApiKeyLocation|null $in = null,
+        public readonly string|null $scheme = null,
+        public readonly string|null $bearerFormat = null,
+        public readonly OAuthFlowsObject|null $flows = null,
+        public readonly string|null $openIdConnectUrl = null,
     ) {
         if ($type === SecuritySchemeType::apiKey) {
             Assert::notNull($name, '"name" is required for type "apiKey"');

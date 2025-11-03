@@ -17,14 +17,14 @@ final class OpenApiObject implements JsonSerializable
     public function __construct(
         public readonly OpenApiVersion $openapi,
         public readonly InfoObject $info,
-        public readonly null|string $jsonSchemaDialect = null,
-        public readonly null|ServerObjects $servers = null,
-        public readonly null|PathsObject $paths = null,
+        public readonly string|null $jsonSchemaDialect = null,
+        public readonly ServerObjects|null $servers = null,
+        public readonly PathsObject|null $paths = null,
         // TODO add webhooks
-        public readonly null|ComponentsObject $components = null,
-        public readonly null|SecurityRequirementObject $security = null,
-        public readonly null|array $tags = null,
-        public readonly null|ExternalDocumentationObject $externalDocs = null,
+        public readonly ComponentsObject|null $components = null,
+        public readonly SecurityRequirementObject|null $security = null,
+        public readonly array|null $tags = null,
+        public readonly ExternalDocumentationObject|null $externalDocs = null,
     ) {}
 
     /**
