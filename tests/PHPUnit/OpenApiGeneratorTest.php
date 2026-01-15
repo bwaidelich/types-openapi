@@ -424,4 +424,68 @@ final class OpenApiGeneratorTest extends TestCase
         $this->generator->generate($className);
     }
 
+    public function test_recursive_schema(): void
+    {
+        $schema = (new OpenApiGenerator())->generate(Fixture\ApiWithRecursiveSchema::class);
+        $expected = <<<'JSON'
+        {
+            "openapi": "3.0.3",
+            "info": {
+                "title": "",
+                "version": "0.0.0"
+            },
+            "paths": {
+                "\/recursion": {
+                    "post": {
+                        "operationId": "recursion",
+                        "requestBody": {
+                            "content": {
+                                "application\/json": {
+                                    "schema": {
+                                        "$ref": "#\/components\/schemas\/RecursiveObject"
+                                    }
+                                }
+                            },
+                            "required": true
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Default",
+                                "content": {
+                                    "application\/json": {
+                                        "schema": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Bad Request"
+                            }
+                        }
+                    }
+                }
+            },
+            "components": {
+                "schemas": {
+                    "RecursiveObject": {
+                        "type": "object",
+                        "properties": {
+                            "sub": {
+                                "$ref": "#\/components\/schemas\/RecursiveObject"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "sub"
+                        ]
+                    }
+                }
+            }
+        }
+        JSON;
+
+        self::assertJsonStringEqualsJsonString($expected, json_encode($schema, JSON_THROW_ON_ERROR));
+    }
+
 }

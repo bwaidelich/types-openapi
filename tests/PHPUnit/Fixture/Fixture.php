@@ -204,6 +204,22 @@ final class ApiWithEmptyObject
     public function emptyObject(EmptyObject $object): void {}
 }
 
+final class ApiWithRecursiveSchema
+{
+    #[Operation(path: '/recursion', method: HttpMethod::POST)]
+    public function recursion(RecursiveObject $recursion): string
+    {
+        return 'pet';
+    }
+}
+
+final class RecursiveObject
+{
+    public function __construct(
+        public RecursiveObject $sub,
+    ) {}
+}
+
 final class EmptyObject
 {
     public function __construct() {}
