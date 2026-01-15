@@ -23,13 +23,22 @@ final class GeneratorMiddleware implements SchemaGeneratorMiddleware
     ];
 
     /**
+     * @var array<string, true>
+     */
+    public array $processingSchemas = [];
+
+    /**
      * @var array<string, Json\Schema>
      */
     public array $generatedJsonSchemas = [];
 
     public function __invoke(Types\Schema $schema, Closure $next): Json\Schema
     {
-        $convertSchema = function (Types\Schema $schema) use ($next): Json\Schema {
+        if (array_key_exists($schema->getName(), $this->processingSchemas)) {
+            return new Json\ReferenceSchema('#/components/schemas/' . $schema->getName());
+        }
+        $this->processingSchemas[$schema->getName()] = true;
+        $convertSchema = static function (Types\Schema $schema) use ($next): Json\Schema {
             $jsonSchema = $next($schema);
             if ($jsonSchema instanceof Json\OneOfSchema && $jsonSchema->discriminator?->mapping !== null) {
                 $jsonSchema = $jsonSchema->withDiscriminator(
@@ -55,6 +64,7 @@ final class GeneratorMiddleware implements SchemaGeneratorMiddleware
                 maxItems: $schema->maxCount,
             );
         }
+        unset($this->processingSchemas[$schema->getName()]);
         return $convertSchema($schema);
     }
 }
